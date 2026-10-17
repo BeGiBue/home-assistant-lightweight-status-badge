@@ -1,5 +1,8 @@
 """Home Assistant entry lifecycle for Lightweight Status Badge."""
 
+from pathlib import Path
+
+from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryError, ConfigEntryNotReady
@@ -23,11 +26,20 @@ async def async_setup_entry(hass: HomeAssistant, entry: StatusBadgeConfigEntry) 
         # Do not quietly discard unreadable persistence and present a successful setup.
         raise ConfigEntryNotReady(f"Cannot load acknowledgements: {err}") from err
     entry.runtime_data = core
-    if DOMAIN not in hass.data:
-        async_register(hass)
-        hass.data[DOMAIN] = True
-    entry.async_on_unload(entry.add_update_listener(async_options_updated))
     try:
+        if DOMAIN not in hass.data:
+            await hass.http.async_register_static_paths(
+                [
+                    StaticPathConfig(
+                        "/lightweight_status_badge/frontend",
+                        str(Path(__file__).parent / "www"),
+                        False,
+                    )
+                ]
+            )
+            async_register(hass)
+            hass.data[DOMAIN] = True
+        entry.async_on_unload(entry.add_update_listener(async_options_updated))
         await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     except Exception:
         await core.async_close()

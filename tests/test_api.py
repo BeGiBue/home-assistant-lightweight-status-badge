@@ -27,6 +27,7 @@ async def test_two_clients_global_ack_and_revoke(hass, hass_ws_client, rule_data
     result = (await first.receive_json())["result"]
     alert = result["alerts"][0]
     assert "Batteriebetrieb" in alert["description"]
+    assert alert["can_acknowledge"] is True
     await first.send_json_auto_id(
         {"type": f"{DOMAIN}/acknowledge", "rule_id": "ups", "occurrence": alert["occurrence"]}
     )
@@ -58,6 +59,7 @@ async def test_readonly_can_read_not_mutate(
     await client.send_json_auto_id({"type": f"{DOMAIN}/alerts"})
     result = await client.receive_json()
     assert result["success"]
+    assert result["result"]["alerts"][0]["can_acknowledge"] is False
     await client.send_json_auto_id(
         {
             "type": f"{DOMAIN}/acknowledge",
@@ -163,3 +165,17 @@ async def test_unauthenticated_command_rejected_by_ha_auth_phase(hass, rule_data
     send.assert_awaited_once()
     assert json.loads(send.call_args.args[0])["type"] == "auth_invalid"
     assert entry.runtime_data.counts == (1, 1, 2)
+
+
+async def test_subscribe_while_unloaded_recovers_on_setup(hass, hass_ws_client, rule_data):
+    client = await hass_ws_client(hass)
+    hass.states.async_set("sensor.ups", "OB")
+    entry = await setup_entry(hass, [rule_data])
+    assert await hass.config_entries.async_unload(entry.entry_id)
+    await client.send_json_auto_id({"type": f"{DOMAIN}/subscribe"})
+    assert (await client.receive_json())["success"]
+    assert (await client.receive_json())["event"] == {"loaded": False}
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    async_fire_time_changed(hass, dt_util.utcnow() + timedelta(seconds=1))
+    await hass.async_block_till_done()
+    assert (await client.receive_json())["event"]["loaded"] is True

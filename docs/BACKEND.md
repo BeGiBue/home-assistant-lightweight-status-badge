@@ -102,10 +102,14 @@ increasing integer `id`, as required by HA.
   (`de`/`en`, default HA installation language with English fallback). Returns
   `revision`, `alerts`, permission-filtered `total`, `next_offset`. Records contain
   `rule_id`, `occurrence`, `entity_id`, `title`, `severity`, `acknowledged`,
-  `description`, `recommendation`, escaped `raw_state`, `started`, `message_ids`.
+  `description`, `recommendation`, escaped `raw_state`, `started`, `message_ids`, and `can_acknowledge` (current control permission;
+  the mutation endpoint still rechecks authorization).
   Acknowledged active alerts are included. Cleared alerts are absent.
 - `lightweight_status_badge/subscribe`: returns normal HA subscription success,
   then an initial invalidation event and coalesced subsequent invalidations.
+  Once the integration has registered its API, subscribing while it is unloaded
+  is supported: the initial event is `loaded: false`, and a later setup sends a
+  loaded invalidation. This avoids a lost subscription on reconnect during reload.
   Event payload is `{ "loaded": true, "revision": N }` or `{ "loaded": false }`.
   Fetch the desired detail page on invalidation. No polling. Subscriptions survive
   config-entry reloads; unsubscribe with HA's `unsubscribe_events`. Revisions are

@@ -3,15 +3,15 @@
 An event-driven Home Assistant status monitor with graphical rule management,
 localized fault explanations and global acknowledgements.
 
-Development branch: backend from PR #6 plus GUI rule management for issue #3.
-The dashboard badge, detail dialog and secondary alert UI remain in development;
-this is not a release of the complete badge product.
+Development branch: stacked on PR #7, with a dashboard badge, active-alert dialog
+and independent alert card for issue #4. This is development work, not a release.
 
 For a development HA installation, copy `custom_components/lightweight_status_badge`
 into its `custom_components` directory, restart HA and add **Lightweight Status
 Badge** under **Settings → Devices & services**. Open **Configure** to manage
 rules using HA entity selectors. No Helpers entry or recurring YAML edits.
 
+- [Dashboard badge, permanent alert access and frontend validation](docs/FRONTEND.md)
 - [Graphical configuration and navigation](docs/GUI.md)
 - [Backend contract and automated test commands](docs/BACKEND.md)
 - [Product specification](SPEC.md)
