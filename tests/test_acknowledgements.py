@@ -58,13 +58,14 @@ async def test_real_storage_restart_and_condition_change(hass, rule_data):
     await restored.async_close()
 
 
-async def test_startup_unknown_does_not_destroy_restoration(hass, rule_data):
+@pytest.mark.parametrize("temporary", ["unknown", " UNKNOWN "])
+async def test_startup_unknown_does_not_destroy_restoration(hass, rule_data, temporary):
     await state(hass, "OB")
     core = await start(hass, rule_data)
     core.set_acknowledged("ups", core.alerts["ups"].occurrence, True)
     await core.async_close()
     hass.set_state(CoreState.starting)
-    await state(hass, "unknown")
+    await state(hass, temporary)
     restored = Coordinator(hass, "test", [rule_data])
     await restored.async_start()
     assert restored.pending

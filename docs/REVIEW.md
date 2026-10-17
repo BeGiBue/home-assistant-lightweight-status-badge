@@ -17,6 +17,7 @@ der Implementierung gelesen. Produktanforderungen bleiben unverändert.
 | R5 | Niedrig | Erneuter Import unter anderer Modul-URL wirft beim zweiten customElements.define; Picker können doppelt erscheinen. Relevant bei manueller Migration auf versionierte URL. | Element- und Pickerregistrierung idempotent; Test importiert zwei Version-URLs. Neue Implementierung erfordert Browserreload nach Update. |
 | R6 | Niedrig | Browserprüfung erwartet synchrones Portal-Cleanup unmittelbar nach Escape; natives close-Event ist asynchron. Ein Lauf scheiterte, Wiederholung bestand. | Test wartet auf DOM-Entfernung statt auf Scheduling zu vertrauen; vollständiger Browserlauf danach erfolgreich. |
 | R7 | Niedrig | Offizieller Hassfest-Validator beanstandet Reihenfolge der Manifestfelder. | domain/name zuerst, übrige Felder alphabetisch; erneute offizielle Validierung. |
+| R8 | Mittel | Evaluator normalisiert unknown/unavailable, Startup-Restoration prüfte den Rohtext exakt. Großschreibung/Whitespace konnte eine passende Quittierung beim Start verwerfen. | Gleiche Normalisierung im Coordinator, parametrisierter HA-Regressionstest mit ` UNKNOWN `. |
 
 Keine unbelegten kritischen Sicherheitsfehler gefunden. Das ist keine Garantie für
 Fehlerfreiheit. R1 wurde mit einer externen Optionsänderung geprüft; es wird nicht
@@ -87,9 +88,20 @@ erteilt.** Kein Merge oder Release wurde durchgeführt.
 6. Abrupter Abbruch kann die letzte Save-Sekunde verlieren; während HA-Ausfall
    vollständig aufgelöste und wiederkehrende Fehler sind ohne Historie nicht
    unterscheidbar. Beides unveränderte, dokumentierte Systemgrenzen.
-7. Keine Repository-Lizenz vorhanden. Vor öffentlicher Weiterverteilung sollte der
+7. Offizielle HACS-Action: 6/8 Prüfungen bestanden; `license` und `topics`
+   fehlgeschlagen. Es fehlen eine erkannte OSI-Lizenz und Repository-Topics.
+   Topics (`home-assistant`, `hacs`, `custom-integration`, `lovelace`) konnten
+   über die Verbindung nicht gesetzt werden: GitHub HTTP 403,
+   `Resource not accessible by integration`. Eigentümer muss diese unter
+   Repository → About → Topics ergänzen. Keine Umgehung dieser Checks.
+8. Keine Repository-Lizenz vorhanden. Vor öffentlicher Weiterverteilung sollte der
    Eigentümer die Lizenzierung festlegen; hier wurde keine Rechtsentscheidung
    oder ungefragte Lizenzvergabe vorgenommen.
+
+Die Lizenzprüfung liest GitHubs Repository-Lizenzmetadaten, nicht nur den
+PR-Dateibaum. Selbst eine Lizenzdatei im Entwicklungsbranch benötigt später die
+Erkennung auf dem Standardbranch. Das rechtfertigt keinen direkten main-Commit
+oder Merge; dafür bleibt ein eigener freigegebener PR erforderlich.
 
 Testergebnisse und Grenzen: [REVIEW_TEST_RESULTS.md](REVIEW_TEST_RESULTS.md).
 Nachvollziehbare Einrichtung: [INSTALLATION.md](INSTALLATION.md).

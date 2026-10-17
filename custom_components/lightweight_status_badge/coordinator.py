@@ -113,7 +113,7 @@ class Coordinator:
             self.evaluations += 1
             match = evaluate(rule, raw)
             old = self.alerts.get(rule.id)
-            deferred = self.initializing and raw in {"unknown", "unavailable"}
+            deferred = self.initializing and raw.casefold().strip() in {"unknown", "unavailable"}
             if deferred and old and old.acknowledged:
                 self.pending[rule.id] = old.identity
                 persistence_changed = True

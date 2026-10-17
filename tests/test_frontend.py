@@ -48,18 +48,22 @@ async def test_storage_resource_registration_create_update_and_reload(hass):
 
     assert await async_setup_component(hass, "lovelace", {"lovelace": {}})
     resources = hass.data[LOVELACE_DATA].resources
+    foreign = await resources.async_create_item(
+        {"url": "https://example.com" + RESOURCE_URL, "res_type": "module"}
+    )
     await resources.async_create_item({"url": RESOURCE_URL, "res_type": "js"})
     await async_register_resource(hass)
-    items = resources.async_items()
+    assert resources.async_items()[0] == foreign
+    items = resources.async_items()[1:]
     assert len(items) == 1
     assert items[0]["type"] == "module"
     assert items[0]["url"].startswith(RESOURCE_URL + "?v=")
-    before = list(items)
+    before = list(resources.async_items())
     await async_register_resource(hass)
     assert resources.async_items() == before
     await resources.async_delete_item(items[0]["id"])
     await async_register_resource(hass)
-    assert len(resources.async_items()) == 1
+    assert len(resources.async_items()) == 2
 
 
 async def test_yaml_resources_are_not_mutated(hass, caplog):

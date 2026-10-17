@@ -3,7 +3,6 @@
 import logging
 from hashlib import sha256
 from pathlib import Path
-from urllib.parse import urlsplit
 
 from homeassistant.components.lovelace.const import LOVELACE_DATA
 from homeassistant.components.lovelace.resources import ResourceStorageCollection
@@ -28,7 +27,7 @@ async def async_register_resource(hass: HomeAssistant) -> None:
     )
     url = f"{RESOURCE_URL}?v={digest}"
     matching = [
-        item for item in collection.async_items() if urlsplit(item["url"]).path == RESOURCE_URL
+        item for item in collection.async_items() if item["url"].split("?", 1)[0] == RESOURCE_URL
     ]
     if not matching:
         await collection.async_create_item({"url": url, "res_type": "module"})

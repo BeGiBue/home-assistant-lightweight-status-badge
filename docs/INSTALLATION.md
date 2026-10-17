@@ -87,3 +87,19 @@ Deinstallation: Dashboardelemente und Ressourceneintrag über die GUI entfernen,
 danach Integration und HACS-Download entfernen. Quittierung bleibt global; bei
 Stromausfall kann die letzte Sekunde noch nicht gespeicherter Änderungen verloren
 gehen. Andere HA-Versionen und physische Raspberry-Pi-Messungen sind noch offen.
+
+## HACS validator blockers / noch durch den Eigentümer zu erledigen
+
+The official HACS Action currently fails `license` and `topics` (6/8 other checks
+completed successfully, only the external brands check explicitly excluded).
+Set repository About → Topics to include `home-assistant`, `hacs` and suitable
+integration topics. The connected GitHub App cannot change these settings (403).
+Choose an OSI-approved license as copyright owner and have GitHub recognize it
+on the default branch through an approved change. No license was assigned here
+without the owner's decision. A license file only on a development branch does
+not change GitHub's repository-wide license metadata. Do not bypass the checks
+or merge directly merely to turn them green.
+
+Deutsch: Die offizielle HACS-Prüfung ist noch nicht vollständig bestanden.
+Eigentümer muss Topics in About setzen und eine OSI-Lizenz festlegen. Änderung
+von Topics wurde mit HTTP 403 verweigert; die Lizenzentscheidung ist offen.

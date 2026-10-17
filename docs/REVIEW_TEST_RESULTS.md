@@ -7,7 +7,7 @@ Node 24 / Playwright 1.62.1 / systemweites Chromium. Keine physische RPi-Hardwar
 
 | Prüfung | Ergebnis | Aussagegrenze |
 | --- | --- | --- |
-| Vollständiges pytest mit Timeout/Coverage | 174 bestanden, 5,14 s; 97 % Statements (776, davon 24 nicht ausgeführt) | Echte HA-Testbibliothek; Storage überwiegend Testadapter, separate Atomic-File-Tests |
+| Vollständiges pytest mit Timeout/Coverage | 175 bestanden, 5,36 s; 97 % Statements (775, davon 24 nicht ausgeführt) | Echte HA-Testbibliothek; Storage überwiegend Testadapter, separate Atomic-File-Tests |
 | Frontend-Store-/Logiktests | 19 bestanden | Deterministische simulierte HA-Verbindung, einschließlich später Action-Antwort und mehrfacher Modulregistrierung |
 | Chromium UI | 9 bestanden, 7,21 s | Gebautes Modul, simulierte Verbindung und Badge-Host; kein vollständiger echter Lovelace-Browserlauf |
 | npm ci / build / check | Bestanden | Fertiges Modul im Integration-Verzeichnis; 21.583 Bytes, keine Runtime-Abhängigkeiten |
@@ -73,6 +73,26 @@ Für Hassfest wurde `home-assistant/core` mit Tag `2026.10.2` ausgecheckt und do
 `python -m script.hassfest --integration-path ABSOLUTER_INTEGRATIONSPFAD`
 ausgeführt; Ruff muss im PATH sein. CI enthält zusätzlich den offiziellen aktuellen
 Hassfest-Actionlauf und die HACS-Action Kategorie `integration`.
+
+## Unabhängiger Nachweis und Remote-CI
+
+Die neuen Tests wurden zusätzlich gegen den unveränderten Ausgangscode
+`7b0d8a2` ausgeführt und danach die Korrekturen wiederhergestellt: **3 HA-
+Regressionen scheiterten** (veralteter Entwurf, normalisiertes Startup-unknown,
+Listener-Cleanup), die kanonische unknown-Kontrolle bestand. **Beide neuen
+Frontend-Regressionen scheiterten** (späte Action-Antwort, doppelte Moduldefinition).
+Gegen den korrigierten Code bestehen sie in den vollständigen obigen Suites.
+
+GitHub auf Review-Commit `301e1f2`: [Backend-/Frontend-CI](https://github.com/BeGiBue/home-assistant-lightweight-status-badge/actions/runs/39047249846)
+**erfolgreich**, einschließlich der von Playwright installierten Chromium-Version.
+[Offizielle Validierung](https://github.com/BeGiBue/home-assistant-lightweight-status-badge/actions/runs/39047249727):
+Hassfest **erfolgreich**, HACS **fehlgeschlagen: 2/8 Checks** (`license`, `topics`).
+Erfolgreich: information, description, issues, archived, hacsjson,
+integration_manifest. Brands ist explizit ausgenommen und bleibt offen.
+Topics-Änderung per GitHub-App wurde mit HTTP 403 abgelehnt. Lizenzentscheidung
+bleibt beim Eigentümer. Das ist ein tatsächlicher HACS-Befund, kein behaupteter
+Konformitätsnachweis. Spätere Commits lösen erneut CI aus; deren Status ist separat
+am PR zu prüfen.
 
 ## Noch ausstehend
 
