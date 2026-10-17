@@ -5,10 +5,14 @@ from uuid import uuid4
 
 import voluptuous as vol
 from homeassistant import config_entries
+from homeassistant.components.frontend.storage import async_user_store
+from homeassistant.components.http.const import KEY_HASS_USER
 from homeassistant.core import callback
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import selector
+from homeassistant.helpers.http import current_request
+from homeassistant.helpers.translation import async_get_translations
 
 from .const import DOMAIN, MAX_RULES
 from .coordinator import Coordinator
@@ -80,6 +84,29 @@ class RuleOptionsFlow(config_entries.OptionsFlow):
             last_step=False,
         )
 
+    async def _menu(self, *, step_id, menu_options, description_placeholders=None):
+        """Send actual labels: cached frontend translations must not yield blank buttons."""
+        language = self.hass.config.language
+        request = current_request.get()
+        if request is not None and (user := request.get(KEY_HASS_USER)):
+            store = await async_user_store(self.hass, user.id)
+            preferences = store.data.get("language", {})
+            if isinstance(preferences, dict) and isinstance(preferences.get("language"), str):
+                language = preferences["language"] or language
+        translations = await async_get_translations(self.hass, language, "options", {DOMAIN})
+        fallback = await async_get_translations(self.hass, "en", "options", {DOMAIN})
+        prefix = f"component.{DOMAIN}.options.step.{step_id}.menu_options."
+        return self.async_show_menu(
+            step_id=step_id,
+            menu_options={
+                option: translations.get(prefix + option)
+                or fallback.get(prefix + option)
+                or option.replace("_", " ").capitalize()
+                for option in menu_options
+            },
+            description_placeholders=description_placeholders,
+        )
+
     async def async_step_init(self, user_input=None):
         rules = self._rules()
         overview = "\n".join(
@@ -87,7 +114,7 @@ class RuleOptionsFlow(config_entries.OptionsFlow):
             f"{r.get('label') or r['entity_id']} ({r['entity_id']})"
             for r in rules[:10]
         )
-        return self.async_show_menu(
+        return await self._menu(
             step_id="init",
             menu_options=["add", "choose", "finish"],
             description_placeholders={"count": str(len(rules)), "rules": overview},
@@ -110,7 +137,7 @@ class RuleOptionsFlow(config_entries.OptionsFlow):
         return await self.async_step_pick_source()
 
     async def async_step_pick_source(self, user_input=None):
-        return self.async_show_menu(
+        return await self._menu(
             step_id="pick_source", menu_options=["device", "integration", "source", "back"]
         )
 
@@ -249,7 +276,7 @@ class RuleOptionsFlow(config_entries.OptionsFlow):
         return self._form("choose", {vol.Optional("rule_id"): select(choices, "rules")}, errors)
 
     async def async_step_manage(self, user_input=None):
-        return self.async_show_menu(
+        return await self._menu(
             step_id="manage",
             menu_options=[
                 "edit",
@@ -269,7 +296,7 @@ class RuleOptionsFlow(config_entries.OptionsFlow):
         return await self.async_step_init()
 
     async def async_step_edit(self, user_input=None):
-        return self.async_show_menu(
+        return await self._menu(
             step_id="edit",
             menu_options=[
                 "source",
