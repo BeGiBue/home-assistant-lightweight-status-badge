@@ -83,9 +83,10 @@
           "trigger": "Trigger condition",
           "details": "Title, messages and availability",
           "save": "Save rule",
-          "cancel": "Discard draft / back"
+          "cancel": "Discard draft / back",
+          "skip": "Skip this entity"
         },
-        "description": "Draft: **{rule}** · {entity}. Accept pages with Apply / continue. Only Save rule activates the changes."
+        "description": "Draft: **{rule}** · {entity}. Accept pages with Apply / continue. Only Save rule activates the changes. Entities remaining after this one: {remaining}."
       },
       "remove": {
         "title": "Remove rule",
@@ -109,7 +110,7 @@
           "preset": "Template",
           "navigation": "Navigation"
         },
-        "description": "Templates replace the draft trigger, severity, explanation and availability defaults. Review before saving. Entities are never enrolled automatically."
+        "description": "Entity: **{entity}**. Entities remaining after this one: {remaining}. Templates replace the draft trigger, severity, explanation and availability defaults. Review before saving."
       },
       "trigger": {
         "title": "Trigger condition",
@@ -117,13 +118,14 @@
           "allowlist": "Healthy states",
           "threshold": "Threshold (strictly greater than)",
           "error_strings": "Additional error strings",
-          "states": "Error / warning states",
+          "states": "Which states are faults?",
           "operator": "Operator",
           "value": "Comparison text or numeric threshold",
           "values": "Comparison set (for in / not in)",
-          "navigation": "Navigation"
+          "navigation": "Navigation",
+          "additional_states": "Additional values (if not listed)"
         },
-        "description": "Type: {kind}. Add set members separately. Custom rules use the text/number or set according to the operator. UPS: OB = on battery, LB = low battery, FSD = forced shutdown, RB = replace battery; LB/FSD are critical. Other tokens do not trigger a fault."
+        "description": "Type: {kind}. Add set members separately. Custom rules use the text/number or set according to the operator. UPS: OB = on battery, LB = low battery, FSD = forced shutdown, RB = replace battery; LB/FSD are critical. Other tokens do not trigger a fault. Entity: **{entity}**. For fault states, check values that should trigger an alert; other values do not trigger this rule. For drive health, healthy states are instead the allowed values. Suggestions come from declared options, standard HA activities and the current state. Lists may be incomplete; add custom values as needed. unknown/unavailable use the separate availability policies."
       },
       "details": {
         "title": "Title, messages and availability",
@@ -145,6 +147,40 @@
         "data": {
           "navigation": "Navigation"
         }
+      },
+      "pick_source": {
+        "title": "Add entities",
+        "description": "Choose a device or integration instance, then check the entities you want to monitor. You can also select an entity directly.",
+        "menu_options": {
+          "device": "Choose device",
+          "integration": "Choose integration",
+          "source": "Single entity / entity ID",
+          "back": "Back to overview"
+        }
+      },
+      "device": {
+        "title": "Choose device",
+        "data": {
+          "device_id": "Device",
+          "navigation": "Navigation"
+        },
+        "description": "The next step lists all entities belonging to this device."
+      },
+      "integration": {
+        "title": "Choose integration",
+        "data": {
+          "entry_id": "Integration instance",
+          "navigation": "Navigation"
+        },
+        "description": "If an integration has multiple instances, choose the relevant entry."
+      },
+      "entities": {
+        "title": "Check entities",
+        "data": {
+          "entity_ids": "Entities to monitor",
+          "navigation": "Navigation"
+        },
+        "description": "All associated entities are shown, including vacuum/mower operating entities and hidden or disabled entities. Disabled entities provide states only after you enable them in Home Assistant; this flow does not enable them. Configure and save a separate rule for each selected entity. Cancelling discards only unsaved rules."
       }
     },
     "error": {
@@ -152,7 +188,13 @@
       "invalid_trigger": "Check the trigger: use a finite number, suitable entity and nonempty state lists.",
       "invalid_rule": "Invalid rule. Check fields, text lengths (max 1000), attribute names (max 10), unique IDs and rule count (max 1000).",
       "missing_rule": "This rule no longer exists.",
-      "rule_changed": "The rule changed while editing. Discard this draft and reopen the rule."
+      "rule_changed": "The rule changed while editing. Discard this draft and reopen the rule.",
+      "invalid_device": "The device is no longer available.",
+      "invalid_integration": "The integration instance is no longer available.",
+      "no_entities": "No registered entities found. Choose another source or enter the entity directly.",
+      "select_entities": "Check at least one entity.",
+      "source_changed": "The source changed. Select the entities again.",
+      "too_many_rules": "This selection would exceed the limit of 1000 rules."
     }
   },
   "selector": {
@@ -171,7 +213,7 @@
         "unifi_state": "UniFi connection state",
         "ups_status": "UPS status (OB / LB / FSD / RB)",
         "nonzero_code": "Nonzero error code",
-        "diagnostic_state": "Diagnostic fault states",
+        "diagnostic_state": "Select fault states",
         "grid_fault": "Grid fault",
         "custom": "Custom condition",
         "goodwe_code": "GoodWe fault code (ignore unknown / unavailable)"
@@ -203,6 +245,22 @@
         "lt": "Less than",
         "le": "Less or equal",
         "contains": "Contains (case insensitive)"
+      }
+    },
+    "entity_state": {
+      "options": {
+        "on": "On",
+        "off": "Off",
+        "error": "Error",
+        "warning": "Warning",
+        "fault": "Fault",
+        "failed": "Failed",
+        "cleaning": "Cleaning",
+        "docked": "Docked",
+        "idle": "Idle",
+        "paused": "Paused",
+        "returning": "Returning",
+        "mowing": "Mowing"
       }
     }
   }
