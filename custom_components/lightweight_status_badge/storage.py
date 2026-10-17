@@ -16,6 +16,7 @@ class AcknowledgementStore:
             serialize_in_event_loop=True,
         )
         self.data: dict[str, str] = {}
+        self._save_pending = False
 
     async def load(self) -> dict[str, str]:
         data = await self.store.async_load()
@@ -35,8 +36,16 @@ class AcknowledgementStore:
     def update(self, data: dict[str, str]) -> None:
         if self.data != data:
             self.data = dict(data)
-            # The callable reads the latest state at flush time, never a stale captured snapshot.
-            self.store.async_delay_save(self._snapshot, SAVE_DELAY)
+            if not self._save_pending:
+                # Bound the coalescing window from the first mutation. Repeated actions
+                # must not postpone persistence indefinitely during a sustained burst.
+                self._save_pending = True
+                self.store.async_delay_save(self._snapshot_for_write, SAVE_DELAY)
+
+    def _snapshot_for_write(self) -> dict[str, dict[str, str]]:
+        self._save_pending = False
+        return self._snapshot()
 
     async def flush(self) -> None:
+        self._save_pending = False
         await self.store.async_save(self._snapshot())

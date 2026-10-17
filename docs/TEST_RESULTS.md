@@ -7,10 +7,10 @@ UniFi, NAS, inverter, or other device was available.
 ## Automated checks
 
 - `ruff check .`: passed.
-- `ruff format --check .`: passed (23 Python files).
+- `ruff format --check .`: passed.
 - `python -m pytest -q --timeout=30 --cov=custom_components.lightweight_status_badge --cov-report=term-missing`:
-  **115 passed**, no failures, errors, skips or expected failures; 4.19 seconds.
-- Statement coverage: **95%** (521 statements, 26 not executed).
+  **116 passed**, no failures, errors, skips or expected failures; 4.53 seconds.
+- Statement coverage: **95%** (528 statements, 26 not executed).
 - `git diff --exit-code 641895501d99ed1967051fdbfcf515b7e33f8c14 -- SPEC.md ARCHITECTURE.md README.md`:
   passed; product/architecture documents and existing README remain unchanged.
 
@@ -18,7 +18,7 @@ Coverage includes all rule families and custom operators; finite/malformed value
 availability policies and missing entities; UPS token/severity changes;
 acknowledge/revoke, stale occurrences, resolve/recur, reconnection;
 startup unknown/unavailable, actual HA final-write handling, atomic temporary-file
-storage and delayed snapshot reconciliation; display-only versus substantive
+storage, delayed snapshot reconciliation and bounded save windows during sustained acknowledgement bursts; display-only versus substantive
 rule edits; multiple rules per source; options reload/unload; sensor aggregates;
 pagination, escaping and attribute whitelists; two live authenticated WebSocket
 clients, subscriptions across reload, source-entity read/control permissions,

@@ -37,3 +37,18 @@ async def test_file_roundtrip_and_latest_delayed_snapshot(hass, tmp_path):
         document = await hass.async_add_executor_job(lambda: json.loads(path.read_text()))
         assert document["data"] == {"acknowledgements": {}}
         assert set(document["data"]) == {"acknowledgements"}
+
+
+async def test_ack_burst_does_not_postpone_first_save(hass):
+    store = AcknowledgementStore(hass, "burst")
+    with patch.object(store.store, "async_delay_save") as schedule:
+        store.update({"first": "one"})
+        store.update({"first": "one", "second": "two"})
+        store.update({"second": "two"})
+        schedule.assert_called_once()
+        callback, delay = schedule.call_args.args
+        assert delay == 1
+        assert callback() == {"acknowledgements": {"second": "two"}}
+        store.update({"third": "three"})
+        assert schedule.call_count == 2
+        assert schedule.call_args.args[0]() == {"acknowledgements": {"third": "three"}}

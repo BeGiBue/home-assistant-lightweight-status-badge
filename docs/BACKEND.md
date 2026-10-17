@@ -151,8 +151,9 @@ threshold condition do not.
 
 All alert mutations are synchronous on HA's event loop. Acknowledge/revoke reads
 the current occurrence and mutates without an await. Stale frontend requests
-cannot acknowledge another occurrence. Storage saves are queued/coalesced over
-one second, with a callback reading the latest snapshot at write time; resolving
+cannot acknowledge another occurrence. Storage saves are queued/coalesced in a one-second window measured from the
+first change; repeated actions do not extend that window. A callback reads the
+latest snapshot at write time; resolving
 a fault during the delay removes the pending identity. HA Store serializes in
 the event loop and writes atomically in its executor. There is no disk write
 on ordinary sensor-state changes. Graceful shutdown stops monitoring before
