@@ -71,16 +71,17 @@ class Coordinator:
             self.unsubs.append(
                 async_track_state_change_event(self.hass, list(self.by_entity), self._state_changed)
             )
-        self.unsubs.append(self.hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, self._stop))
+        self.unsubs.append(self.hass.bus.async_listen(EVENT_HOMEASSISTANT_STOP, self._stop))
         # Restore integrations may emit temporary unknown/unavailable during startup.
         # Do not destroy pending acks until HA has finished setting up integrations.
         if self.hass.state == CoreState.running:
             self._finish_startup(None)
         else:
             self._evaluate_all()
-            self.unsubs.append(
-                self.hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, self._finish_startup)
+            self.startup_unsub = self.hass.bus.async_listen_once(
+                EVENT_HOMEASSISTANT_STARTED, self._finish_startup
             )
+            self.unsubs.append(self.startup_unsub)
 
     def _evaluate_all(self) -> None:
         for entity_id in self.by_entity:
@@ -88,6 +89,9 @@ class Coordinator:
 
     @callback
     def _finish_startup(self, _event: Event | None) -> None:
+        if _event is not None:
+            # The event bus already removed this one-shot listener.
+            self.unsubs.remove(self.startup_unsub)
         self.initializing = False
         self._evaluate_all()
         self.pending.clear()

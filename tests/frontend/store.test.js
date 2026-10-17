@@ -295,3 +295,39 @@ test("pending HA subscription survives ready without creating another subscripti
   off();
   await tick();
 });
+
+test("late action failure cannot contaminate a remounted store", async () => {
+  let reject;
+  const a = alert("a");
+  const c = new Connection((m) => m.type.endsWith("/alerts") ? page([a]) : new Promise((_, r) => { reject = r; }));
+  const store = new AlertStore(c, "en");
+  const off = store.listen(() => {});
+  await tick();
+  const action = store.acknowledge(a);
+  off();
+  const off2 = store.listen(() => {});
+  await tick();
+  assert.equal(store.pending.size, 0);
+  const calls = c.calls.length;
+  reject({code: "unauthorized"});
+  await action;
+  assert.equal(store.actionError, "");
+  assert.equal(c.calls.length, calls);
+  off2();
+});
+
+test("reloading a versioned module does not redefine elements or duplicate pickers", async () => {
+  const defined = new Map();
+  globalThis.customElements = {
+    get: (name) => defined.get(name),
+    define: (name, value) => {
+      assert.equal(defined.has(name), false);
+      defined.set(name, value);
+    },
+  };
+  await import("../../frontend/lightweight-status-badge.js?first-version");
+  await import("../../frontend/lightweight-status-badge.js?next-version");
+  assert.equal(defined.size, 3);
+  assert.equal(window.customBadges.length, 1);
+  assert.equal(window.customCards.length, 1);
+});

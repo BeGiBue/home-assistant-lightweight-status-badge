@@ -151,7 +151,8 @@
       "invalid_entity": "Ungültige Entitäts-ID.",
       "invalid_trigger": "Prüfe den Auslöser: endliche Zahl, passende Entität und nicht leere Zustandslisten erforderlich.",
       "invalid_rule": "Ungültige Regel. Prüfe Felder, Textlängen (max. 1000), Attributnamen (max. 10), eindeutige IDs und Regelanzahl (max. 1000).",
-      "missing_rule": "Die Regel existiert nicht mehr."
+      "missing_rule": "Die Regel existiert nicht mehr.",
+      "rule_changed": "Die Regel wurde zwischenzeitlich geändert. Entwurf verwerfen und Regel neu öffnen."
     }
   },
   "selector": {

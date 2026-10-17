@@ -382,3 +382,25 @@ async def test_ha_loads_translations(hass, language, title, enable):
     assert selectors[f"component.{DOMAIN}.selector.policy.options.ignore"] == (
         "Ignorieren" if language == "de" else "Ignore"
     )
+
+
+async def test_concurrent_edit_does_not_overwrite_newer_rule(hass):
+    rules = [{"id": "ups", "entity_id": "sensor.source", "kind": "ups_status"}]
+    entry, result = await start(hass, rules)
+    result = await menu(hass, result, "choose")
+    result = await go(hass, result, {"rule_id": "ups"})
+    result = await menu(hass, result, "edit")
+    result = await menu(hass, result, "details")
+    result = await go(hass, result, {"label": "Stale draft"})
+    hass.config_entries.async_update_entry(
+        entry, options={"rules": [{**rules[0], "label": "Newer"}]}
+    )
+    result = await menu(hass, result, "save")
+    assert result["errors"] == {"base": "rule_changed"}
+    assert entry.options["rules"][0]["label"] == "Newer"
+    # A subsequent deletion must also allow cancelling without StopIteration.
+    hass.config_entries.async_update_entry(entry, options={"rules": []})
+    result = await go(hass, result, {"navigation": "back"})
+    result = await menu(hass, result, "cancel")
+    assert result["step_id"] == "init"
+    await hass.async_block_till_done()

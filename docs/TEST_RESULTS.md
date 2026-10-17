@@ -1,5 +1,7 @@
 # Backend validation results
 
+> Historical work-package report. Current installation: [INSTALLATION.md](INSTALLATION.md); independent review and current evidence: [REVIEW.md](REVIEW.md), [REVIEW_TEST_RESULTS.md](REVIEW_TEST_RESULTS.md).
+
 Measured on 2026-10-17 in the Codex Linux x86_64 cloud environment with
 Home Assistant 2026.10.2 and Python 3.14.8. No Raspberry Pi or physical UPS,
 UniFi, NAS, inverter, or other device was available.

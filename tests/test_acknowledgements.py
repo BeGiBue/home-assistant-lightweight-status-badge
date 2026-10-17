@@ -293,3 +293,16 @@ async def test_stopping_state_flushes_on_ha_final_write(hass, hass_storage, rule
     await hass.async_block_till_done()
     assert hass_storage[core.storage.store.key]["data"]["acknowledgements"] == expected
     hass.set_state(CoreState.running)
+
+
+async def test_consumed_startup_and_stop_listeners_do_not_log_errors(hass, rule_data, caplog):
+    hass.set_state(CoreState.starting)
+    core = Coordinator(hass, "listeners", [rule_data])
+    await core.async_start()
+    hass.bus.async_fire("homeassistant_started")
+    await hass.async_block_till_done()
+    hass.bus.async_fire("homeassistant_stop")
+    await hass.async_block_till_done()
+    assert core.closed
+    assert not core.unsubs
+    assert "Unable to remove unknown job listener" not in caplog.text
