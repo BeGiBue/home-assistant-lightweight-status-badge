@@ -4,7 +4,7 @@
     "step": {
       "user": {
         "title": "Lightweight Status Badge",
-        "description": "Backend einrichten. Regelkonfiguration und Dashboard-Badge folgen als separate Arbeitspakete."
+        "description": "Integration einrichten. Anschließend lassen sich Regeln über „Konfigurieren“ verwalten. Dies ist eine Integration unter Geräte & Dienste, kein Helfer."
       }
     },
     "abort": {
@@ -43,6 +43,166 @@
         "acknowledged": {
           "name": "Acknowledged"
         }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Regelverwaltung",
+        "description": "**{count} Regeln** (Vorschau: bis zu 10). ✓ aktiv, ⏸ deaktiviert. Alle Regeln unter „Vorhandene Regel auswählen“.\n\n{rules}",
+        "menu_options": {
+          "add": "Regel hinzufügen",
+          "choose": "Vorhandene Regel auswählen",
+          "finish": "Fertig"
+        }
+      },
+      "choose": {
+        "title": "Vorhandene Regel auswählen",
+        "data": {
+          "rule_id": "Regel",
+          "navigation": "Navigation"
+        }
+      },
+      "manage": {
+        "title": "Regel verwalten",
+        "description": "Regel: {rule}\n\nAktiviert: {enabled}",
+        "menu_options": {
+          "edit": "Regel bearbeiten",
+          "remove": "Regel entfernen",
+          "back": "Zurück zur Übersicht",
+          "enable": "Aktivieren",
+          "disable": "Deaktivieren"
+        }
+      },
+      "edit": {
+        "title": "Regel bearbeiten",
+        "menu_options": {
+          "source": "Quellentität",
+          "preset": "Vorlage anwenden",
+          "trigger": "Auslösebedingung",
+          "details": "Titel, Meldungen und Verfügbarkeit",
+          "save": "Regel speichern",
+          "cancel": "Entwurf verwerfen / zurück"
+        },
+        "description": "Entwurf: **{rule}** · {entity}. Übernimm Seiten mit „Übernehmen / weiter“. Erst „Regel speichern“ aktiviert die Änderungen."
+      },
+      "remove": {
+        "title": "Regel entfernen",
+        "data": {
+          "confirm": "Entfernen bestätigen",
+          "navigation": "Navigation"
+        },
+        "description": "Die Regel und ihre aktuelle Quittierung werden entfernt. Die Quellentität bleibt bestehen."
+      },
+      "source": {
+        "title": "Quellentität",
+        "data": {
+          "entity_id": "Entität",
+          "navigation": "Navigation"
+        },
+        "description": "Wähle eine vorhandene Entität oder gib eine Entitäts-ID ein. „on“ ist nur bei ausdrücklich gewählten Störungsindikatoren ein Fehler."
+      },
+      "preset": {
+        "title": "Vorlage anwenden",
+        "data": {
+          "preset": "Vorlage",
+          "navigation": "Navigation"
+        },
+        "description": "Vorlagen ersetzen Auslöser, Schweregrad, Erklärung und Verfügbarkeit im Entwurf. Prüfe sie vor dem Speichern. Keine automatische Aufnahme von Entitäten."
+      },
+      "trigger": {
+        "title": "Auslösebedingung",
+        "data": {
+          "allowlist": "Gesunde Zustände",
+          "threshold": "Grenzwert (strikt größer als)",
+          "error_strings": "Zusätzliche Fehlerzeichenfolgen",
+          "states": "Fehler- / Warnzustände",
+          "operator": "Operator",
+          "value": "Vergleichstext oder numerischer Grenzwert",
+          "values": "Vergleichsmenge (für enthalten / nicht enthalten)",
+          "navigation": "Navigation"
+        },
+        "description": "Typ: {kind}. Mengen als einzelne Einträge hinzufügen. Bei eigenen Regeln gilt der Text-/Zahlenwert oder die Vergleichsmenge je nach Operator. USV: OB = Batteriebetrieb, LB = Batterie fast leer, FSD = erzwungenes Herunterfahren, RB = Batterie ersetzen; LB/FSD sind kritisch. Andere Token lösen keinen Fehler aus."
+      },
+      "details": {
+        "title": "Titel, Meldungen und Verfügbarkeit",
+        "data": {
+          "label": "Titel",
+          "message": "Erklärung (leer: übersetzte Vorlagenmeldung)",
+          "recommendation": "Empfehlung",
+          "severity": "Schweregrad",
+          "enabled": "Aktiviert",
+          "unknown_policy": "Unbekannter Zustand",
+          "unavailable_policy": "Nicht verfügbare oder fehlende Entität",
+          "attributes": "Erlaubte Attributplatzhalter",
+          "navigation": "Navigation"
+        },
+        "description": "Leere Erklärung verwendet die übersetzte, zustandsabhängige Vorlagenmeldung (auch für USV). Platzhalter: `{state_placeholder}` und `{attribute_placeholder}`; NAME muss in der Attributliste stehen. Kein Python oder Jinja. Änderungen gelten erst nach „Regel speichern“."
+      },
+      "save": {
+        "title": "Regel speichern",
+        "data": {
+          "navigation": "Navigation"
+        }
+      }
+    },
+    "error": {
+      "invalid_entity": "Ungültige Entitäts-ID.",
+      "invalid_trigger": "Prüfe den Auslöser: endliche Zahl, passende Entität und nicht leere Zustandslisten erforderlich.",
+      "invalid_rule": "Ungültige Regel. Prüfe Felder, Textlängen (max. 1000), Attributnamen (max. 10), eindeutige IDs und Regelanzahl (max. 1000).",
+      "missing_rule": "Die Regel existiert nicht mehr.",
+      "rule_changed": "Die Regel wurde zwischenzeitlich geändert. Entwurf verwerfen und Regel neu öffnen."
+    }
+  },
+  "selector": {
+    "navigation": {
+      "options": {
+        "continue": "Übernehmen / weiter",
+        "back": "Zurück (diese Seite verwerfen)"
+      }
+    },
+    "preset": {
+      "options": {
+        "binary_on": "Expliziter Störungsindikator (on)",
+        "update_available": "Update verfügbar (Update-Entitäten)",
+        "disk_health": "Laufwerkszustand",
+        "positive_count": "Zähler über Grenzwert",
+        "unifi_state": "UniFi-Verbindungszustand",
+        "ups_status": "USV-Status (OB / LB / FSD / RB)",
+        "nonzero_code": "Fehlercode ungleich null",
+        "diagnostic_state": "Diagnose-Fehlerzustände",
+        "grid_fault": "Netzfehler",
+        "custom": "Eigene Bedingung",
+        "goodwe_code": "GoodWe-Fehlercode (unbekannt / nicht verfügbar ignorieren)"
+      }
+    },
+    "severity": {
+      "options": {
+        "1": "1 – Hinweis",
+        "2": "2 – Warnung",
+        "3": "3 – Kritisch"
+      }
+    },
+    "policy": {
+      "options": {
+        "ignore": "Ignorieren",
+        "notice": "Hinweis",
+        "warning": "Warnung",
+        "critical": "Kritisch"
+      }
+    },
+    "operator": {
+      "options": {
+        "eq": "Gleich",
+        "ne": "Ungleich",
+        "in": "In Menge enthalten",
+        "not_in": "Nicht in Menge enthalten",
+        "gt": "Größer als",
+        "ge": "Größer oder gleich",
+        "lt": "Kleiner als",
+        "le": "Kleiner oder gleich",
+        "contains": "Enthält (Groß-/Kleinschreibung ignorieren)"
       }
     }
   }

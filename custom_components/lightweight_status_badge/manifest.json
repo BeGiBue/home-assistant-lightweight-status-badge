@@ -1,10 +1,19 @@
 {
   "domain": "lightweight_status_badge",
   "name": "Lightweight Status Badge",
-  "codeowners": ["@BeGiBue"],
+  "after_dependencies": [
+    "lovelace"
+  ],
+  "codeowners": [
+    "@BeGiBue"
+  ],
   "config_flow": true,
+  "dependencies": [
+    "http"
+  ],
   "documentation": "https://github.com/BeGiBue/home-assistant-lightweight-status-badge",
   "iot_class": "local_push",
+  "issue_tracker": "https://github.com/BeGiBue/home-assistant-lightweight-status-badge/issues",
   "requirements": [],
   "version": "0.1.0"
 }

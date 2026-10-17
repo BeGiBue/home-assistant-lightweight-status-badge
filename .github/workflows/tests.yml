@@ -1,4 +1,4 @@
-name: Backend tests
+name: Backend and frontend tests
 on:
   push:
   pull_request:
@@ -18,3 +18,17 @@ jobs:
       - run: ruff check .
       - run: ruff format --check .
       - run: python -m pytest --timeout=30 --cov=custom_components.lightweight_status_badge --cov-report=term-missing
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run check
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:browser

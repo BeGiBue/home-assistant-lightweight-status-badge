@@ -65,14 +65,16 @@ def ws_alerts(
 ) -> None:
     try:
         core = coordinator(hass)
-        connection.send_result(
-            msg["id"],
-            core.details(
-                msg.get("language", hass.config.language),
-                msg["offset"],
-                lambda entity: can_read(connection.user, entity),
-            ),
+        details = core.details(
+            msg.get("language", hass.config.language),
+            msg["offset"],
+            lambda entity: can_read(connection.user, entity),
         )
+        for alert in details["alerts"]:
+            alert["can_acknowledge"] = connection.user.permissions.check_entity(
+                alert["entity_id"], POLICY_CONTROL
+            )
+        connection.send_result(msg["id"], details)
     except HomeAssistantError as err:
         connection.send_error(msg["id"], "not_loaded", str(err))
 
@@ -84,12 +86,8 @@ def ws_subscribe(
     connection: websocket_api.ActiveConnection,
     msg: dict[str, Any],
 ) -> None:
-    try:
-        coordinator(hass)
-    except HomeAssistantError as err:
-        connection.send_error(msg["id"], "not_loaded", str(err))
-        return
-
+    # Keep invalidation subscriptions usable during reload/reconnect windows.
+    # changed() reports loaded:false until a coordinator is available again.
     @callback
     def changed() -> None:
         # Invalidation only: bounded message, no state data leaks, no polling required.

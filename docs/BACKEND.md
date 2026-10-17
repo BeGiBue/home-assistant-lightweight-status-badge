@@ -1,15 +1,17 @@
 # Backend development (work package A / issue #2)
 
+> Historical work-package report. Current installation: [INSTALLATION.md](INSTALLATION.md); independent review and current evidence: [REVIEW.md](REVIEW.md), [REVIEW_TEST_RESULTS.md](REVIEW_TEST_RESULTS.md).
+
 The Python backend implements the rule engine, event subscriptions, active alerts,
 acknowledgements, storage, aggregate entities and authenticated detail/action API
 from SPEC.md and ARCHITECTURE.md. Those product documents are unchanged.
 
-This is **not the complete usable badge product**. The options-flow rule editor,
-GUI template picker, dashboard badge/dialog and secondary detail UI remain work
-packages B/C. HACS validation, live-device integration testing and Raspberry Pi
-measurements remain work package D. The included HA setup flow creates the single
-backend config entry; it does not pretend to provide those missing interfaces.
-No release is created by this change.
+This is **not the complete usable badge product**. This branch adds work package
+B (the options-flow rule editor and GUI template picker); see [GUI.md](GUI.md).
+The dashboard badge/dialog and secondary detail UI remain work package C. HACS
+validation, live-device integration testing and Raspberry Pi measurements remain
+work package D. The HA setup flow creates the single integration config entry;
+its Configure action opens rule management. No release is created by this change.
 
 ## Development and validation
 
@@ -34,18 +36,18 @@ actual temporary files with atomic writes enabled.
 To run in an existing development HA installation, copy or symlink
 `custom_components/lightweight_status_badge` into its `custom_components`
 directory, restart HA, then add **Lightweight Status Badge** in Devices & services.
-Do not install this backend branch into a production instance expecting a GUI
-badge. No credentials or network services are needed by this local integration.
+Do not install this development branch into a production instance expecting a
+dashboard badge. No credentials or network services are needed by this local integration.
 
-## Config-entry contract for the future options flow
+## Config-entry contract for the options flow
 
 Rules live in `entry.options["rules"]`, a list validated before backend startup.
-The options flow should call `Coordinator.validate_rules` before saving through
+The options flow calls `Coordinator.validate_rules` before saving through
 `hass.config_entries.async_update_entry`. The registered update listener reloads
 the integration without restarting HA. There is no recurring YAML workflow and
 users should not edit HA's `.storage` files by hand.
 
-Example rule data for a development fixture or the upcoming options flow:
+Example rule data for a development fixture or the options flow:
 
 ```json
 [
@@ -102,10 +104,14 @@ increasing integer `id`, as required by HA.
   (`de`/`en`, default HA installation language with English fallback). Returns
   `revision`, `alerts`, permission-filtered `total`, `next_offset`. Records contain
   `rule_id`, `occurrence`, `entity_id`, `title`, `severity`, `acknowledged`,
-  `description`, `recommendation`, escaped `raw_state`, `started`, `message_ids`.
+  `description`, `recommendation`, escaped `raw_state`, `started`, `message_ids`, and `can_acknowledge` (current control permission;
+  the mutation endpoint still rechecks authorization).
   Acknowledged active alerts are included. Cleared alerts are absent.
 - `lightweight_status_badge/subscribe`: returns normal HA subscription success,
   then an initial invalidation event and coalesced subsequent invalidations.
+  Once the integration has registered its API, subscribing while it is unloaded
+  is supported: the initial event is `loaded: false`, and a later setup sends a
+  loaded invalidation. This avoids a lost subscription on reconnect during reload.
   Event payload is `{ "loaded": true, "revision": N }` or `{ "loaded": false }`.
   Fetch the desired detail page on invalidation. No polling. Subscriptions survive
   config-entry reloads; unsubscribe with HA's `unsubscribe_events`. Revisions are
