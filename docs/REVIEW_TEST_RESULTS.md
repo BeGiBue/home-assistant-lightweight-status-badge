@@ -45,7 +45,7 @@ nicht als bestandene Tests.
 `tests/test_performance.py`: 2 bestanden, 1,34 s. Eine Regelauswertung je
 gewähltem Event, keine Auswertung ungewählter Quellen, keine Quittierungssaves
 bei normalen Quellenänderungen. Messschleife inklusive HA-Harness/Tracemalloc;
-keine Prozess-RSS, Steady-State-Speicher- oder Raspberry-Pi-Messung.
+keine Prozess-RSS- oder Steady-State-Speichermessung.
 
 ## Reproduktion
 
@@ -98,7 +98,7 @@ am PR zu prüfen.
 
 ## Noch ausstehend
 
-Physischer Raspberry Pi 4, reale Geräte, HACS-Download/Update über die Oberfläche,
+Reale Geräte, HACS-Download/Update über die Oberfläche,
 komplette Zwei-Browser-Lovelace-Sitzung, andere Browser/HA-Versionen, echte
 Screenreader/Touch- und Langzeitprüfung. HACS-Remote-Ergebnis wird separat
 protokolliert; eine eingerichtete Action ist noch kein bestandenes Ergebnis.

@@ -9,7 +9,7 @@ from SPEC.md and ARCHITECTURE.md. Those product documents are unchanged.
 This is **not the complete usable badge product**. This branch adds work package
 B (the options-flow rule editor and GUI template picker); see [GUI.md](GUI.md).
 The dashboard badge/dialog and secondary detail UI remain work package C. HACS
-validation, live-device integration testing and Raspberry Pi measurements remain
+validation and live-device integration testing remain
 work package D. The HA setup flow creates the single integration config entry;
 its Configure action opens rule management. No release is created by this change.
 

@@ -86,7 +86,7 @@ Updates: HA sichern, in HACS aktualisieren, HA neu starten, Browser neu laden.
 Deinstallation: Dashboardelemente und Ressourceneintrag über die GUI entfernen,
 danach Integration und HACS-Download entfernen. Quittierung bleibt global; bei
 Stromausfall kann die letzte Sekunde noch nicht gespeicherter Änderungen verloren
-gehen. Andere HA-Versionen und physische Raspberry-Pi-Messungen sind noch offen.
+gehen. Andere HA-Versionen sind noch offen.
 
 ## HACS validator blockers / noch durch den Eigentümer zu erledigen
 

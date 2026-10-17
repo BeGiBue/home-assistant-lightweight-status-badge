@@ -74,8 +74,7 @@ behauptet, dass HA zwei gleichzeitige Optionsflows desselben Eintrags zulässt.
 **Für gezielte Entwicklungstests geeignet; allgemeine Release-Freigabe noch nicht
 erteilt.** Kein Merge oder Release wurde durchgeführt.
 
-1. Physischer Raspberry Pi 4: CPU/RSS, Langzeitbetrieb, SD-Karten-I/O und echte
-   Geräte nicht getestet. Cloud-Tracemalloc ist kein Hardware-Nachweis.
+1. Langzeitbetrieb und echte Geräte nicht getestet. Cloud-Tracemalloc ist kein Hardware-Nachweis.
 2. Durchgängiger Browserlauf gegen echtes Lovelace inkl. HACS-Download/Update,
    zwei echten Browsern, realem Theme und Touch/Screenreader fehlt. Native Module
    und HA-APIs wurden getrennt sowie Installation im echten HA-Prozess geprüft.

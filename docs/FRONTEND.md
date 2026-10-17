@@ -158,17 +158,14 @@ HA connection fixture and a source-based badge-host visibility fixture. Python
 tests use real HA 2026.10.2 HTTP, authenticated WebSocket clients and permissions.
 These layers test the frontend and backend contracts separately; they are not a
 full automated Lovelace session on a running physical installation. Other browsers,
-physical touch devices, real third-party theme packages, screen-reader usability,
-HACS validation and UI responsiveness on the target wall tablet (Raspberry Pi 4, 7"
-display, TouchKio kiosk browser; see the last section) remain unverified. Viewport
-and theme-variable tests do not establish those wider claims.
+physical touch devices, real third-party theme packages, screen-reader usability and
+HACS validation remain unverified. Viewport and theme-variable tests do not
+establish those wider claims.
 
 ## Wall tablet (Raspberry Pi 4, TouchKio)
 
 The intended display is a Raspberry Pi 4 with a 7" screen running TouchKio as the
 dashboard UI. The question is whether the badge and the alerts card make that UI lag.
-Older reports speak of "Raspberry Pi measurements" without separating the backend (HA
-host) from this kiosk UI; this section is only about the UI.
 
 Static evidence (code review, not a measurement): the module is about 21 KB, has no
 timers, polling, `requestAnimationFrame` or `MutationObserver`, and no animations or
@@ -180,8 +177,3 @@ settings UI and never on the dashboard.
 Possible costs on a Pi 4: the detail dialog uses `backdrop-filter` and `box-shadow` from
 the active theme, so a theme that sets a blur can make opening the dialog stutter; the
 overall dashboard (number of cards, images) usually dominates over this module.
-
-Still open: a measurement on the real device. Suggested check: load the same dashboard
-with and without the badge and card, watch CPU load on the Pi (for example `top`) and the
-touch response, trigger and acknowledge several alerts in a row, and repeat with a theme
-that has no blur.

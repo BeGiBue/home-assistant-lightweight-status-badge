@@ -50,6 +50,6 @@ Added modules (details in docs/AUTODETECT.md): `autodetect.py` (orchestration, l
 A. Backend pure evaluator + coordinator + persistence + aggregate entities, tests.
 B. GUI options flows, translations and end-to-end rule management, tests.
 C. Native-badge feasibility prototype, then minimal companion badge and detail dialog if necessary.
-D. Integration testing on current HA, HACS validation, Raspberry Pi performance measurements, independent review and release notes.
+D. Integration testing on current HA, HACS validation, independent review and release notes.
 
 No release until all acceptance criteria pass.

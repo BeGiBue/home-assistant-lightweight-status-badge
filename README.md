@@ -12,10 +12,8 @@ Oberfläche fertige Regeln vor (Online-Katalog, dann lokale Analyse) und wählt 
 eine Bestätigung genügt. Details: [docs/AUTODETECT.md](docs/AUTODETECT.md).
 
 **Development / release candidate preparation.** No release has been created.
-Requires Home Assistant **2026.10.2 or newer** (tested: 2026.10.2). UI responsiveness
-on the Raspberry Pi 4 wall tablet with TouchKio (see
-[docs/FRONTEND.md](docs/FRONTEND.md#wall-tablet-raspberry-pi-4-touchkio)) and a complete
-real-Lovelace browser acceptance run remain open.
+Requires Home Assistant **2026.10.2 or newer** (tested: 2026.10.2). A complete
+real-Lovelace browser acceptance run remains open.
 
 ## Installation / Einrichtung
 

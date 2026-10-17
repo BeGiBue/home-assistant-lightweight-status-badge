@@ -98,7 +98,7 @@ back action so it can be corrected or discarded.
 The literal list of 29 original entity IDs and their old Jinja conditions is not
 included in this repository or issue. Tests therefore cover the supplied category
 semantics with representative fixtures, not a claim of verified migration of
-unavailable original entity IDs. No physical devices or Raspberry Pi measurements
+unavailable original entity IDs. No physical devices
 are claimed by this GUI work.
 
 ## Security and tests
