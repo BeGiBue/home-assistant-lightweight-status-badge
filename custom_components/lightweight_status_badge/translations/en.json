@@ -4,7 +4,7 @@
     "step": {
       "user": {
         "title": "Lightweight Status Badge",
-        "description": "Set up the backend. Rule configuration UI and the dashboard badge are separate work packages."
+        "description": "Set up the integration, then use Configure to manage rules. This is a Devices & services integration, not a helper."
       }
     },
     "abort": {
@@ -43,6 +43,165 @@
         "acknowledged": {
           "name": "Acknowledged"
         }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Rule management",
+        "description": "**{count} rules** (preview: up to 10). ✓ enabled, ⏸ disabled. Find all rules under Select existing rule.\n\n{rules}",
+        "menu_options": {
+          "add": "Add rule",
+          "choose": "Select existing rule",
+          "finish": "Done"
+        }
+      },
+      "choose": {
+        "title": "Select existing rule",
+        "data": {
+          "rule_id": "Rule",
+          "navigation": "Navigation"
+        }
+      },
+      "manage": {
+        "title": "Manage rule",
+        "description": "Rule: {rule}\n\nEnabled: {enabled}",
+        "menu_options": {
+          "edit": "Edit rule",
+          "remove": "Remove rule",
+          "back": "Back to overview",
+          "enable": "Enable",
+          "disable": "Disable"
+        }
+      },
+      "edit": {
+        "title": "Edit rule",
+        "menu_options": {
+          "source": "Source entity",
+          "preset": "Apply template",
+          "trigger": "Trigger condition",
+          "details": "Title, messages and availability",
+          "save": "Save rule",
+          "cancel": "Discard draft / back"
+        },
+        "description": "Draft: **{rule}** · {entity}. Accept pages with Apply / continue. Only Save rule activates the changes."
+      },
+      "remove": {
+        "title": "Remove rule",
+        "data": {
+          "confirm": "Confirm removal",
+          "navigation": "Navigation"
+        },
+        "description": "Removes the rule and its current acknowledgement. The source entity remains available."
+      },
+      "source": {
+        "title": "Source entity",
+        "data": {
+          "entity_id": "Entity",
+          "navigation": "Navigation"
+        },
+        "description": "Select an existing entity or enter an entity ID. Only use on as a fault for an explicitly selected fault indicator."
+      },
+      "preset": {
+        "title": "Apply template",
+        "data": {
+          "preset": "Template",
+          "navigation": "Navigation"
+        },
+        "description": "Templates replace the draft trigger, severity, explanation and availability defaults. Review before saving. Entities are never enrolled automatically."
+      },
+      "trigger": {
+        "title": "Trigger condition",
+        "data": {
+          "allowlist": "Healthy states",
+          "threshold": "Threshold (strictly greater than)",
+          "error_strings": "Additional error strings",
+          "states": "Error / warning states",
+          "operator": "Operator",
+          "value": "Comparison text or numeric threshold",
+          "values": "Comparison set (for in / not in)",
+          "navigation": "Navigation"
+        },
+        "description": "Type: {kind}. Add set members separately. Custom rules use the text/number or set according to the operator. UPS: OB = on battery, LB = low battery, FSD = forced shutdown, RB = replace battery; LB/FSD are critical. Other tokens do not trigger a fault."
+      },
+      "details": {
+        "title": "Title, messages and availability",
+        "data": {
+          "label": "Title",
+          "message": "Explanation (empty: translated template message)",
+          "recommendation": "Recommendation",
+          "severity": "Severity",
+          "enabled": "Enabled",
+          "unknown_policy": "Unknown state",
+          "unavailable_policy": "Unavailable or missing entity",
+          "attributes": "Allowed attribute placeholders",
+          "navigation": "Navigation"
+        },
+        "description": "An empty explanation uses the translated, state-specific template message (including UPS). Placeholders: `{state_placeholder}` and `{attribute_placeholder}`; NAME must be in the attribute list. No Python or Jinja. Changes apply only after Save rule."
+      },
+      "save": {
+        "title": "Save rule",
+        "data": {
+          "navigation": "Navigation"
+        }
+      }
+    },
+    "error": {
+      "invalid_entity": "Invalid entity ID.",
+      "invalid_trigger": "Check the trigger: use a finite number, suitable entity and nonempty state lists.",
+      "invalid_rule": "Invalid rule. Check fields, text lengths (max 1000), attribute names (max 10), unique IDs and rule count (max 1000).",
+      "missing_rule": "This rule no longer exists."
+    }
+  },
+  "selector": {
+    "navigation": {
+      "options": {
+        "continue": "Apply / continue",
+        "back": "Back (discard this page)"
+      }
+    },
+    "preset": {
+      "options": {
+        "binary_on": "Explicit fault indicator (on)",
+        "update_available": "Update available (update entities)",
+        "disk_health": "Drive health",
+        "positive_count": "Count above threshold",
+        "unifi_state": "UniFi connection state",
+        "ups_status": "UPS status (OB / LB / FSD / RB)",
+        "nonzero_code": "Nonzero error code",
+        "diagnostic_state": "Diagnostic fault states",
+        "grid_fault": "Grid fault",
+        "custom": "Custom condition",
+        "goodwe_code": "GoodWe fault code (ignore unknown / unavailable)"
+      }
+    },
+    "severity": {
+      "options": {
+        "1": "1 – Notice",
+        "2": "2 – Warning",
+        "3": "3 – Critical"
+      }
+    },
+    "policy": {
+      "options": {
+        "ignore": "Ignore",
+        "notice": "Notice",
+        "warning": "Warning",
+        "critical": "Critical"
+      }
+    },
+    "operator": {
+      "options": {
+        "eq": "Equals",
+        "ne": "Not equal",
+        "in": "In set",
+        "not_in": "Not in set",
+        "gt": "Greater than",
+        "ge": "Greater or equal",
+        "lt": "Less than",
+        "le": "Less or equal",
+        "contains": "Contains (case insensitive)"
       }
     }
   }
