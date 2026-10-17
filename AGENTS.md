@@ -22,6 +22,8 @@ analysis, then the manual list). Read `docs/AUTODETECT.md` before touching
 lists the invariants (no polling or runtime network access, nothing saved without
 confirmation, catalog data is untrusted, no guessing of vendor-specific codes).
 
+Owner intent: the integration should itself determine which entities indicate which
+faults, preselect them and propose matching rules; manual selection is the fallback.
 The user explicitly confirmed that backward compatibility is not required for this
 feature scope. `catalog.json` is both the offline fallback and the file clients fetch
 from `main`, so review catalog changes like code. Keep `strings.json`,
