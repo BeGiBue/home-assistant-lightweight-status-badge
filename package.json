@@ -1,0 +1,14 @@
+{
+  "name": "lightweight-status-badge",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test --test-isolation=none tests/frontend/*.test.js",
+    "test:browser": "node --test --test-isolation=none tests/browser/*.test.js",
+    "build": "node scripts/build.mjs",
+    "check": "node scripts/build.mjs --check"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1"
+  }
+}
