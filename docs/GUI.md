@@ -139,5 +139,7 @@ uses the existing `diagnostic_state` evaluator: this is a state rule, not automa
 classification of arbitrary error attributes. Attribute-only faults require an
 appropriate source entity; this change does not add attribute evaluators.
 
-Backward compatibility is not required for current development. Before a release,
-ask the user whether compatibility is required for that release (see AGENTS.md).
+Before planning fundamental importer/configuration/storage changes, clarify
+backward compatibility with the user. Ask again before release only if that
+decision remains open or the scope has changed. The user confirmed that
+compatibility is not required for 0.1.5 (see AGENTS.md).
