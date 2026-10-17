@@ -48,6 +48,7 @@ class RuleOptionsFlow(config_entries.OptionsFlow):
     def __init__(self):
         self.draft = None
         self.selected = None
+        self.original = None
         self.values = {}
 
     def _rules(self):
@@ -102,6 +103,7 @@ class RuleOptionsFlow(config_entries.OptionsFlow):
             rule = next((r for r in rules if r["id"] == user_input.get("rule_id")), None)
             if rule:
                 self.selected = rule["id"]
+                self.original = deepcopy(rule)
                 self.draft = deepcopy(rule)
                 self.values = {}
                 return await self.async_step_manage()
@@ -149,7 +151,10 @@ class RuleOptionsFlow(config_entries.OptionsFlow):
 
     async def async_step_cancel(self, user_input=None):
         if self.selected:
-            self.draft = next(r for r in self._rules() if r["id"] == self.selected)
+            self.draft = next((r for r in self._rules() if r["id"] == self.selected), None)
+            if self.draft is None:
+                return await self.async_step_back()
+            self.original = deepcopy(self.draft)
             self.values = {}
             return await self.async_step_manage()
         return await self.async_step_back()
@@ -361,6 +366,15 @@ class RuleOptionsFlow(config_entries.OptionsFlow):
         rules = self._rules()
         if self.selected and not any(r["id"] == self.selected for r in rules):
             return await self.async_step_back()
+        if self.selected and next(r for r in rules if r["id"] == self.selected) != self.original:
+            return self.async_show_form(
+                step_id="save",
+                errors={"base": "rule_changed"},
+                data_schema=vol.Schema(
+                    {vol.Optional("navigation", default="back"): select(["back"], "navigation")}
+                ),
+                last_step=False,
+            )
         if self.selected:
             rules = [self.draft if r["id"] == self.selected else r for r in rules]
         else:

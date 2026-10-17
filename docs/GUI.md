@@ -1,5 +1,7 @@
 # Graphical rule management (issue #3 / work package B)
 
+> Historical work-package report. Current installation: [INSTALLATION.md](INSTALLATION.md); independent review and current evidence: [REVIEW.md](REVIEW.md), [REVIEW_TEST_RESULTS.md](REVIEW_TEST_RESULTS.md).
+
 Based on `feat/status-badge-backend` from PR #6, commit
 `e99d6952377e7634224a401766d18418115fadde`. Product requirements in SPEC.md and
 ARCHITECTURE.md are unchanged. This branch implements rule management, not the

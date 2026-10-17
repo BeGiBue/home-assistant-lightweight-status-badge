@@ -6,6 +6,7 @@ from unittest.mock import AsyncMock, patch
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import CoreState
 from homeassistant.data_entry_flow import FlowResultType
+from homeassistant.setup import async_setup_component
 from homeassistant.util import dt as dt_util
 from pytest_homeassistant_custom_component.common import MockConfigEntry, async_fire_time_changed
 
@@ -72,6 +73,8 @@ async def test_invalid_config_is_setup_error(hass, rule_data):
 
 
 async def test_storage_error_does_not_overwrite_acknowledgements(hass):
+    # This test patches HA Store, so initialize HTTP's own storage first.
+    assert await async_setup_component(hass, "http", {})
     entry = MockConfigEntry(domain=DOMAIN)
     entry.add_to_hass(hass)
     with (
