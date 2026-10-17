@@ -1,0 +1,6 @@
+{
+  "name": "Lightweight Status Badge",
+  "homeassistant": "2026.10.2",
+  "hacs": "2.0.0",
+  "render_readme": true
+}
