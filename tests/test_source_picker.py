@@ -308,3 +308,67 @@ async def test_removed_device_and_integration_report_validation_errors(
     result = await menu(hass, result, "integration")
     result = await go(hass, result, {})
     assert result["errors"] == {"entry_id": "invalid_integration"}
+
+
+@pytest.mark.parametrize(
+    "language,expected",
+    [
+        (
+            "de",
+            [
+                "Gerät auswählen",
+                "Integration auswählen",
+                "Einzelne Entität / Entitäts-ID",
+                "Zurück zur Übersicht",
+            ],
+        ),
+        (
+            "en",
+            [
+                "Choose device",
+                "Choose integration",
+                "Single entity / entity ID",
+                "Back to overview",
+            ],
+        ),
+    ],
+)
+async def test_import_menu_labels_are_in_the_http_response(
+    hass,
+    hass_client,
+    hass_admin_user,
+    language,
+    expected,
+):
+    from homeassistant.components.frontend.storage import async_user_store
+    from homeassistant.setup import async_setup_component
+
+    assert await async_setup_component(hass, "config", {})
+    hass.config.language = "en" if language == "de" else "de"
+    store = await async_user_store(hass, hass_admin_user.id)
+    await store.async_set_item("language", {"language": language})
+    entry, result = await start(hass)
+    admin = await hass_client()
+    response = await admin.post(
+        "/api/config/config_entries/options/flow/" + result["flow_id"], json={"next_step_id": "add"}
+    )
+    assert response.status == 200
+    payload = await response.json()
+    # HA renders literal mapping labels even with an empty/stale frontend translation cache.
+    assert payload["menu_options"] == dict(
+        zip(
+            ["device", "integration", "source", "back"],
+            expected,
+            strict=True,
+        )
+    )
+    assert all(
+        isinstance(label, str) and label.strip() for label in payload["menu_options"].values()
+    )
+
+
+async def test_import_menu_uses_installation_language_without_user_context(hass):
+    hass.config.language = "de"
+    _, result = await start(hass)
+    result = await menu(hass, result, "add")
+    assert result["menu_options"]["device"] == "Gerät auswählen"
