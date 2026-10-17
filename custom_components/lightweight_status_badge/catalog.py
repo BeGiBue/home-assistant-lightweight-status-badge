@@ -7,6 +7,7 @@ through ``Rule.from_dict`` before it can influence the configuration flow.
 import asyncio
 import fnmatch
 import json
+import re
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -15,12 +16,31 @@ import aiohttp
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .const import CATALOG_CACHE_KEY, CATALOG_MAX_BYTES, CATALOG_TIMEOUT, CATALOG_TTL, CATALOG_URL
+from .const import (
+    CATALOG_CACHE_KEY,
+    CATALOG_MAX_BYTES,
+    CATALOG_TIMEOUT,
+    CATALOG_TTL,
+    CATALOG_URL,
+    CATALOG_VERSION,
+)
 from .rules import Rule
 
 MATCH_KEYS = frozenset({"domain", "device_class", "translation_key", "entity_category"})
 MAX_RULES_PER_ENTRY = 50
 MAX_TEXT = 64
+MAX_DESCRIPTION = 200
+# The description is shown as markdown in the flow: drop links, images, HTML and emphasis.
+_URL = re.compile(r"\S*://\S*")
+_MARKUP = re.compile(r"[\[\]()<>`*_\\|#~]")
+
+
+def _text(value: object) -> str:
+    """Plain, single-line text from an untrusted catalog value."""
+    if not isinstance(value, str):
+        return ""
+    value = _MARKUP.sub("", _URL.sub("", value))
+    return " ".join(value.split())[:MAX_DESCRIPTION]
 
 
 @dataclass(frozen=True)
@@ -61,9 +81,11 @@ async def _fetch_online(hass: HomeAssistant) -> dict | None:
                         return None
                     chunks.append(chunk)
         data = json.loads(b"".join(chunks))
-    except TimeoutError, aiohttp.ClientError, OSError, ValueError:
+    except TimeoutError, aiohttp.ClientError, OSError, ValueError, RecursionError:
+        return None  # RecursionError: deeply nested JSON fits easily into the size limit.
+    if not isinstance(data, dict) or data.get("version") != CATALOG_VERSION:
         return None
-    return data if isinstance(data, dict) else None
+    return data
 
 
 async def async_load_catalog(hass: HomeAssistant) -> tuple[dict | None, str]:
@@ -81,7 +103,7 @@ async def async_load_catalog(hass: HomeAssistant) -> tuple[dict | None, str]:
         return catalog, "online"
     try:
         catalog = await hass.async_add_executor_job(_bundled)
-    except OSError, ValueError:
+    except OSError, ValueError, RecursionError:
         return None, "none"
     return (catalog, "bundled") if isinstance(catalog, dict) else (None, "none")
 
@@ -106,7 +128,7 @@ def _clean_rule(raw: object) -> CatalogRule | None:
     }
     try:
         rule = Rule.from_dict(candidate)
-    except ValueError, TypeError:
+    except ValueError, TypeError, RecursionError:
         return None
     return CatalogRule(
         dict(match),
@@ -125,10 +147,7 @@ def _entry(scope: str, key: str, raw: dict) -> CatalogMatch | None:
     rules = tuple(r for r in map(_clean_rule, raw_rules[:MAX_RULES_PER_ENTRY]) if r)
     if not rules:
         return None
-    description = raw.get("description", "")
-    return CatalogMatch(
-        scope, key, description[:200] if isinstance(description, str) else "", rules
-    )
+    return CatalogMatch(scope, key, _text(raw.get("description")), rules)
 
 
 def _pattern(value: str | None, pattern: object) -> bool:

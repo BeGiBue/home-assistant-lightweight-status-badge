@@ -98,6 +98,12 @@ Format (`catalog.json`, `version` 1):
 - `devices[]` matches `manufacturer`/`model` with case-insensitive `fnmatch` patterns
   (max 64 characters) and beats an `integrations` entry. For a device source the domains of
   all its config entries are tried against `integrations`.
+- `version` must equal `CATALOG_VERSION` (currently 1). An online catalog with another or
+  a missing version is ignored and the bundled copy is used, so a future format change on
+  `main` cannot be misread by older installations. Raise the constant together with any
+  incompatible format change and keep the bundled file readable by the code it ships with.
+- `description` is untrusted text that HA renders as markdown. `catalog._text` removes URLs,
+  link/image/HTML/emphasis characters and line breaks and cuts it to 200 characters.
 - Unknown top-level keys such as `comment` are ignored.
 
 Validation (`catalog._clean_rule`): the catalog is untrusted input. A rule survives only if
@@ -109,8 +115,9 @@ example `update_available` on a non-update entity is discarded). The catalog can
 code, cannot introduce new rule kinds and cannot reference concrete entity IDs.
 
 Loading (`catalog.async_load_catalog`): HTTPS GET of `CATALOG_URL` with a 5 s timeout and a
-256 KiB limit; success is cached for 10 minutes. Any failure (network, HTTP error, bad JSON,
-non-object, too large) falls back to the bundled file, which is always consistent with the
+256 KiB limit; success is cached for 10 minutes. Any failure (network, HTTP error, bad JSON
+including pathologically nested JSON that raises `RecursionError`, non-object, wrong format
+version, too large) falls back to the bundled file, which is always consistent with the
 installed code. Origin is reported as `online`, `bundled` or `none`.
 
 ### Changing the catalog
@@ -186,16 +193,25 @@ validation errors, re-running a source, device sources). The autouse fixture
 `offline_catalog` in `tests/conftest.py` replaces the download with "unavailable", so every
 test sees the bundled catalog and no test can reach the network.
 
-Verification state at authoring time: `ruff check`, `ruff format --check` and a
-Python 3.14 compile check passed, and the pure logic (validation, matching, heuristic,
-catalog application, fetch handling) was exercised with a stub script. The Home Assistant
-based test suite could **not** be run in the authoring environment (PyPI unreachable), so
-the CI run is the first real execution. Do not merge before `Backend and frontend tests`
-is green; expect that failures, if any, are most likely in `tests/test_autodetect.py`.
+Verification state: the authoring environment could not run the Home Assistant based test
+suite (PyPI unreachable); locally only `ruff`, a Python 3.14 compile check and a stub script
+for the pure logic were possible. The first real execution was GitHub Actions: on commit
+`5a1617d` the `Backend and frontend tests` workflow (pytest, `ruff check`,
+`ruff format --check`, frontend and browser tests) and the hassfest/HACS validation were
+green, and an independent review found no blocker. Changes made after that commit (catalog
+version gate, description sanitising, `RecursionError` handling, selection kept after
+validation errors) need their own green CI run before merging. Check the Actions result of
+the head commit; do not rely on this paragraph for later commits.
 
 ## Known limitations and open points
 
 - No setting to disable the online catalog (the bundled one is used only when offline).
+  The manifest keeps `iot_class: local_push`: the outbound request happens only while the
+  configuration dialog is used and carries no device data.
+- Offline failures are not cached, so without internet every source pick may wait up to the
+  5 s timeout before the bundled file is used. A short negative cache would fix this.
+- Already-ruled entities are hidden from proposals but remain selectable in the list, so a
+  second rule for the same entity is still possible by hand (same as the manual list).
 - Catalog and heuristic are never combined; a catalog entry matching only part of a source
   hides heuristic proposals for the rest (those entities can still be checked manually).
 - Before the branch is merged, `CATALOG_URL` returns 404 on `main`, which correctly falls

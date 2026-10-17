@@ -15,6 +15,7 @@ CATALOG_URL = (
     "https://raw.githubusercontent.com/BeGiBue/home-assistant-lightweight-status-badge/"
     "main/custom_components/lightweight_status_badge/catalog.json"
 )
+CATALOG_VERSION = 1  # Catalogs with another version are ignored (older code cannot read them).
 CATALOG_TIMEOUT = 5
 CATALOG_MAX_BYTES = 256 * 1024
 CATALOG_TTL = 600

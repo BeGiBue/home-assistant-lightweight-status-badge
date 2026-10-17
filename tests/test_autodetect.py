@@ -11,7 +11,11 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.lightweight_status_badge import catalog
 from custom_components.lightweight_status_badge.autodetect import async_detect
-from custom_components.lightweight_status_badge.const import CATALOG_MAX_BYTES, CATALOG_URL
+from custom_components.lightweight_status_badge.const import (
+    CATALOG_MAX_BYTES,
+    CATALOG_URL,
+    CATALOG_VERSION,
+)
 from custom_components.lightweight_status_badge.rules import Rule
 from tests.test_config_flow import go, menu, start
 from tests.test_source_picker import options, pick
@@ -41,6 +45,28 @@ def test_bundled_catalog_is_valid_and_complete():
         assert entry["description"]
         cleaned = [catalog._clean_rule(raw) for raw in entry["rules"]]
         assert None not in cleaned, "every bundled rule must pass validation"
+        assert catalog._text(entry["description"]) == entry["description"]  # Already plain text.
+    assert data["version"] == CATALOG_VERSION
+
+
+def test_hostile_description_is_reduced_to_plain_text():
+    hostile = (
+        "[click](https://evil.example/p) ![](https://t.example/x.png) <b>bold</b> "
+        "`code` *em* <https://evil.example> see\nhttp://evil.example/q"
+    )
+    entry = catalog._entry("integration", "x", {"description": hostile, "rules": [rule()]})
+    assert not set("[]()<>`*_\\|#~") & set(entry.description)
+    assert "://" not in entry.description
+    assert "\n" not in entry.description
+    assert "evil" not in entry.description  # Whole URL-bearing tokens (links) are dropped.
+    assert "bold" in entry.description
+    assert len(catalog._text("x" * 1000)) == catalog.MAX_DESCRIPTION
+    assert catalog._text(None) == catalog._text(5) == ""
+
+
+def test_recursion_error_while_validating_drops_the_rule():
+    with patch.object(catalog.Rule, "from_dict", side_effect=RecursionError):
+        assert catalog._clean_rule(rule()) is None
 
 
 @pytest.mark.parametrize(
@@ -123,6 +149,9 @@ async def test_fetch_online_returns_catalog(hass, aioclient_mock):
         {"json": ["not", "a", "dict"]},
         {"json": {"padding": "x" * (CATALOG_MAX_BYTES + 1)}},
         {"exc": TimeoutError},
+        {"text": "[" * 100000},  # Deeply nested JSON raises RecursionError, not ValueError.
+        {"json": {"version": 2, "integrations": {}}},  # Unknown format version.
+        {"json": {"integrations": {}}},  # Missing format version.
     ],
 )
 async def test_fetch_online_failures_mean_unavailable(hass, aioclient_mock, response):
@@ -475,9 +504,12 @@ async def test_autodetect_navigation_and_validation(hass, zigbee):
     result = await go(hass, result, {"entry_id": zigbee[0].entry_id})
     result = await go(hass, result, {"entity_ids": []})
     assert result["errors"] == {"entity_ids": "select_entities"}
+    chosen = [entities["problem"].entity_id, entities["battery"].entity_id]
     with patch("custom_components.lightweight_status_badge.config_flow.MAX_RULES", 1):
-        result = await go(hass, result, {})
+        result = await go(hass, result, {"entity_ids": chosen})
         assert result["errors"] == {"base": "too_many_rules"}
+    # The user's own selection survives the error instead of resetting to all proposals.
+    assert set(result["data_schema"]({})["entity_ids"]) == set(chosen)
     assert not entry.options["rules"]
 
 

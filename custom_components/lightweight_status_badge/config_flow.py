@@ -208,9 +208,11 @@ class RuleOptionsFlow(config_entries.OptionsFlow):
         entries = source_entities(self.hass, self.source_type, self.source_id)
         valid_ids = {entry.entity_id for entry in entries}
         proposals = {p.entity_id: p for p in self.detection.proposals if p.entity_id in valid_ids}
+        selected = list(proposals)
         errors = {}
         if user_input:
             chosen = list(dict.fromkeys(user_input.get("entity_ids", [])))
+            selected = chosen  # After an error the user's own selection stays.
             if not chosen:
                 errors["entity_ids"] = "select_entities"
             elif not set(chosen) <= valid_ids:
@@ -250,7 +252,9 @@ class RuleOptionsFlow(config_entries.OptionsFlow):
             preview += f"\n• … +{len(proposals) - len(shown)}"
         description = self.detection.description
         fields = {
-            vol.Optional("entity_ids", default=list(proposals)): selector.SelectSelector(
+            vol.Optional(
+                "entity_ids", default=[entity for entity in selected if entity in valid_ids]
+            ): selector.SelectSelector(
                 selector.SelectSelectorConfig(
                     options=choices, multiple=True, mode=selector.SelectSelectorMode.LIST
                 )
