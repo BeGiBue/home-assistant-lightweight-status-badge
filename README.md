@@ -4,6 +4,13 @@ Event-driven Home Assistant monitoring with graphical rule management, German an
 English explanations, a dashboard badge and global acknowledgements. No polling,
 alert history, runtime JavaScript dependencies or recurring YAML configuration.
 
+**Less setup effort / Weniger Aufwand:** after choosing a device or integration the
+configuration UI proposes ready-made rules (online rule catalog, then local analysis of
+standard metadata) and preselects them; you confirm once. Only entities nobody could
+classify need manual work. Nach Auswahl von Gerät oder Integration schlägt die
+Oberfläche fertige Regeln vor (Online-Katalog, dann lokale Analyse) und wählt sie vor;
+eine Bestätigung genügt. Details: [docs/AUTODETECT.md](docs/AUTODETECT.md).
+
 **Development / release candidate preparation.** No release has been created.
 Requires Home Assistant **2026.10.2 or newer** (tested: 2026.10.2). Physical Raspberry
 Pi 4 measurements and a complete real-Lovelace browser acceptance run remain open.
@@ -64,6 +71,7 @@ for rollback, removal, version boundaries and troubleshooting.
 - [Review validation results and exact test boundaries](docs/REVIEW_TEST_RESULTS.md)
 - [GUI rule workflows](docs/GUI.md), [backend/API](docs/BACKEND.md),
   [frontend architecture and original validation](docs/FRONTEND.md)
+- [Automatic rule proposals: catalog, local analysis, invariants for agents](docs/AUTODETECT.md)
 - [Product specification](SPEC.md), [architecture](ARCHITECTURE.md)
 
 Earlier package-specific reports describe their original commits. The review

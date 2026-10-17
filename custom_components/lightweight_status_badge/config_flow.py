@@ -10,6 +10,7 @@ from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import selector
 
+from .autodetect import Detection, async_detect
 from .const import DOMAIN, MAX_RULES
 from .coordinator import Coordinator
 from .discovery import source_entities, state_choices
@@ -56,6 +57,7 @@ class RuleOptionsFlow(config_entries.OptionsFlow):
         self.source_id = None
         self.chosen_entities = []
         self.pending_entities = []
+        self.detection: Detection | None = None
 
     def _rules(self):
         return deepcopy(self.config_entry.options.get("rules", []))
@@ -124,7 +126,7 @@ class RuleOptionsFlow(config_entries.OptionsFlow):
                 errors["device_id"] = "invalid_device"
             else:
                 self._set_source("device", device_id)
-                return await self.async_step_entities()
+                return await self.async_step_autodetect()
         fields = {
             vol.Optional(
                 "device_id",
@@ -153,7 +155,7 @@ class RuleOptionsFlow(config_entries.OptionsFlow):
                 errors["entry_id"] = "invalid_integration"
             else:
                 self._set_source("integration", entry_id)
-                return await self.async_step_entities()
+                return await self.async_step_autodetect()
         fields = {
             vol.Optional(
                 "entry_id",
@@ -168,6 +170,102 @@ class RuleOptionsFlow(config_entries.OptionsFlow):
         if (self.source_type, self.source_id) != (source_type, source_id):
             self.chosen_entities = []
         self.source_type, self.source_id = source_type, source_id
+
+    def _label(self, entry):
+        state = self.hass.states.get(entry.entity_id)
+        name = (
+            entry.name
+            or entry.original_name
+            or (state.attributes.get("friendly_name") if state else None)
+        )
+        return f"{name} · {entry.entity_id}" if name else entry.entity_id
+
+    async def async_step_autodetect(self, user_input=None):
+        """Automatic stage after choosing a source: catalog, then local heuristic.
+
+        Only when both find nothing does the user get the plain manual checkbox list.
+        """
+        skip = frozenset(rule["entity_id"] for rule in self._rules())
+        self.detection = await async_detect(self.hass, self.source_type, self.source_id, skip)
+        if self.detection.origin == "none":
+            return await self.async_step_entities()
+        return await self._autodetect(f"autodetect_{self.detection.origin}", None)
+
+    async def async_step_autodetect_catalog(self, user_input=None):
+        return await self._autodetect("autodetect_catalog", user_input)
+
+    async def async_step_autodetect_heuristic(self, user_input=None):
+        return await self._autodetect("autodetect_heuristic", user_input)
+
+    async def _autodetect(self, step, user_input):
+        """Proposed entities are preselected; checked ones save at once, others go manual."""
+        if user_input and user_input.get("navigation") == "back":
+            return await (
+                self.async_step_device()
+                if self.source_type == "device"
+                else self.async_step_integration()
+            )
+        entries = source_entities(self.hass, self.source_type, self.source_id)
+        valid_ids = {entry.entity_id for entry in entries}
+        proposals = {p.entity_id: p for p in self.detection.proposals if p.entity_id in valid_ids}
+        errors = {}
+        if user_input:
+            chosen = list(dict.fromkeys(user_input.get("entity_ids", [])))
+            if not chosen:
+                errors["entity_ids"] = "select_entities"
+            elif not set(chosen) <= valid_ids:
+                errors["entity_ids"] = "source_changed"
+            elif len(self._rules()) + len(chosen) > MAX_RULES:
+                errors["base"] = "too_many_rules"
+            else:
+                automatic = [entity for entity in chosen if entity in proposals]
+                manual = [entity for entity in chosen if entity not in proposals]
+                try:
+                    if automatic:
+                        self._persist(
+                            [*self._rules(), *(proposals[entity].to_rule() for entity in automatic)]
+                        )
+                except ValueError, TypeError:
+                    errors["base"] = "invalid_rule"
+                else:
+                    if manual:
+                        self.chosen_entities = manual
+                        self.pending_entities = manual[1:]
+                        self._new_draft(manual[0])
+                        return await self.async_step_preset()
+                    return await self.async_step_back()
+        by_id = {entry.entity_id: entry for entry in entries}
+        choices = [
+            {
+                "value": entry.entity_id,
+                "label": ("★ " if entry.entity_id in proposals else "") + self._label(entry),
+            }
+            for entry in entries
+        ]
+        shown = list(proposals.values())[:10]
+        preview = "\n".join(
+            f"• {self._label(by_id[p.entity_id])} → {p.kind} (S{p.severity})" for p in shown
+        )
+        if len(proposals) > len(shown):
+            preview += f"\n• … +{len(proposals) - len(shown)}"
+        description = self.detection.description
+        fields = {
+            vol.Optional("entity_ids", default=list(proposals)): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=choices, multiple=True, mode=selector.SelectSelectorMode.LIST
+                )
+            )
+        }
+        return self._form(
+            step,
+            fields,
+            errors,
+            {
+                "count": str(len(proposals)),
+                "description": f"{description}\n\n" if description else "",
+                "preview": preview,
+            },
+        )
 
     async def async_step_entities(self, user_input=None):
         if user_input and user_input.get("navigation") == "back":
@@ -192,16 +290,7 @@ class RuleOptionsFlow(config_entries.OptionsFlow):
                 self.pending_entities = chosen[1:]
                 self._new_draft(chosen[0])
                 return await self.async_step_preset()
-        choices = []
-        for entry in entries:
-            state = self.hass.states.get(entry.entity_id)
-            name = (
-                entry.name
-                or entry.original_name
-                or (state.attributes.get("friendly_name") if state else None)
-            )
-            label = f"{name} · {entry.entity_id}" if name else entry.entity_id
-            choices.append({"value": entry.entity_id, "label": label})
+        choices = [{"value": entry.entity_id, "label": self._label(entry)} for entry in entries]
         fields = {
             vol.Optional(
                 "entity_ids",

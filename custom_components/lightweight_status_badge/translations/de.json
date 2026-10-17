@@ -181,6 +181,22 @@
           "navigation": "Navigation"
         },
         "description": "Alle zugehörigen Entitäten sind sichtbar, auch Betriebsentitäten von Saug- und Mährobotern sowie ausgeblendete und deaktivierte Entitäten. Deaktivierte Entitäten liefern erst nach ihrer Aktivierung in Home Assistant Zustände; hier werden sie nicht automatisch aktiviert. Konfiguriere und speichere anschließend für jede gewählte Entität eine eigene Regel. Abbrechen verwirft nur die noch nicht gespeicherten Regeln."
+      },
+      "autodetect_catalog": {
+        "title": "Vorgeschlagene Regeln aus dem Katalog",
+        "data": {
+          "entity_ids": "Zu überwachende Entitäten",
+          "navigation": "Navigation"
+        },
+        "description": "{description}Der Regelkatalog kennt diese Quelle: **{count} Entitäten** haben eine fertige Regel (★, Schweregrad S1–S3). Angekreuzte ★-Entitäten werden sofort mit der vorgeschlagenen Regel gespeichert; entferne, was du nicht möchtest. Jede weitere angekreuzte Entität öffnet nacheinander den manuellen Editor. Gespeicherte Regeln lassen sich später unter Bestehende Regel auswählen anpassen.\n\n{preview}"
+      },
+      "autodetect_heuristic": {
+        "title": "Vorgeschlagene Regeln aus lokaler Analyse",
+        "data": {
+          "entity_ids": "Zu überwachende Entitäten",
+          "navigation": "Navigation"
+        },
+        "description": "{description}Der Katalog hat keinen Eintrag für diese Quelle. Die lokale Analyse schlägt **{count} Entitäten** anhand von Standard-Metadaten vor (Geräteklassen problem, safety, smoke, gas, battery, connectivity, update sowie deklarierte Fehleroptionen). Angekreuzte ★-Entitäten werden sofort mit der vorgeschlagenen Regel gespeichert; entferne, was du nicht möchtest. Jede weitere angekreuzte Entität öffnet nacheinander den manuellen Editor.\n\n{preview}"
       }
     },
     "error": {

@@ -181,6 +181,22 @@
           "navigation": "Navigation"
         },
         "description": "All associated entities are shown, including vacuum/mower operating entities and hidden or disabled entities. Disabled entities provide states only after you enable them in Home Assistant; this flow does not enable them. Configure and save a separate rule for each selected entity. Cancelling discards only unsaved rules."
+      },
+      "autodetect_catalog": {
+        "title": "Suggested rules from the catalog",
+        "data": {
+          "entity_ids": "Entities to monitor",
+          "navigation": "Navigation"
+        },
+        "description": "{description}The rule catalog knows this source: **{count} entities** come with a ready-made rule (★, severity S1–S3). Checked ★ entities are saved immediately with their suggested rule; uncheck what you do not want. Any other entity you check opens the manual editor one by one. Every saved rule can be refined later under Select existing rule.\n\n{preview}"
+      },
+      "autodetect_heuristic": {
+        "title": "Suggested rules from local analysis",
+        "data": {
+          "entity_ids": "Entities to monitor",
+          "navigation": "Navigation"
+        },
+        "description": "{description}The catalog has no entry for this source, so the local analysis proposes **{count} entities** from standard Home Assistant metadata (device classes problem, safety, smoke, gas, battery, connectivity, update, and declared fault options). Checked ★ entities are saved immediately with their suggested rule; uncheck what you do not want. Any other entity you check opens the manual editor one by one.\n\n{preview}"
       }
     },
     "error": {

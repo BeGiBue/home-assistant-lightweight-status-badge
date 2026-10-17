@@ -21,8 +21,8 @@ def source_entities(
     )
 
 
-def state_choices(hass: HomeAssistant, entity_id: str) -> list[str]:
-    """Declared options + standard HA activities + current state; never infer unknown codes."""
+def declared_options(hass: HomeAssistant, entity_id: str) -> list[str]:
+    """Options the entity itself declares (registry capabilities, then state attributes)."""
     state = hass.states.get(entity_id)
     registered = er.async_get(hass).async_get(entity_id)
     values = []
@@ -33,6 +33,13 @@ def state_choices(hass: HomeAssistant, entity_id: str) -> list[str]:
         options = (metadata or {}).get("options")
         if isinstance(options, (list, tuple)):
             values.extend(v for v in options if isinstance(v, str))
+    return values
+
+
+def state_choices(hass: HomeAssistant, entity_id: str) -> list[str]:
+    """Declared options + standard HA activities + current state; never infer unknown codes."""
+    state = hass.states.get(entity_id)
+    values = declared_options(hass, entity_id)
     domain = entity_id.partition(".")[0]
     if domain == "vacuum":
         values.extend(VacuumActivity)

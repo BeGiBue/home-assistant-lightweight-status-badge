@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "comment": "Rule catalog for automatic proposals in the options flow. Format and rules for changing it: docs/AUTODETECT.md. Rules use only standard HA metadata (domain, device_class, translation_key, entity_category).",
+  "integrations": {
+    "zha": {
+      "description": "Zigbee: low batteries, device problems and available updates.",
+      "rules": [
+        {"match": {"domain": "binary_sensor", "device_class": "battery"}, "kind": "binary_on", "severity": 1},
+        {"match": {"domain": "binary_sensor", "device_class": "problem"}, "kind": "binary_on", "severity": 2},
+        {"match": {"domain": "update"}, "kind": "update_available", "severity": 1}
+      ]
+    },
+    "zwave_js": {
+      "description": "Z-Wave: problems, tamper, low batteries and available updates.",
+      "rules": [
+        {"match": {"domain": "binary_sensor", "device_class": "problem"}, "kind": "binary_on", "severity": 2},
+        {"match": {"domain": "binary_sensor", "device_class": "tamper"}, "kind": "binary_on", "severity": 2},
+        {"match": {"domain": "binary_sensor", "device_class": "battery"}, "kind": "binary_on", "severity": 1},
+        {"match": {"domain": "update"}, "kind": "update_available", "severity": 1}
+      ]
+    },
+    "unifi": {
+      "description": "UniFi: connectivity of network devices and available updates.",
+      "rules": [
+        {
+          "match": {"domain": "binary_sensor", "device_class": "connectivity", "entity_category": "diagnostic"},
+          "kind": "custom",
+          "severity": 2,
+          "config": {"operator": "eq", "value": "off"}
+        },
+        {"match": {"domain": "update"}, "kind": "update_available", "severity": 1}
+      ]
+    },
+    "synology_dsm": {
+      "description": "Synology DSM: problem indicators and available updates.",
+      "rules": [
+        {"match": {"domain": "binary_sensor", "device_class": "problem"}, "kind": "binary_on", "severity": 2},
+        {"match": {"domain": "update"}, "kind": "update_available", "severity": 1}
+      ]
+    },
+    "shelly": {
+      "description": "Shelly: overheating and overload problems, available updates.",
+      "rules": [
+        {"match": {"domain": "binary_sensor", "device_class": "problem"}, "kind": "binary_on", "severity": 2},
+        {"match": {"domain": "update"}, "kind": "update_available", "severity": 1}
+      ]
+    },
+    "esphome": {
+      "description": "ESPHome: problem indicators and available firmware updates.",
+      "rules": [
+        {"match": {"domain": "binary_sensor", "device_class": "problem"}, "kind": "binary_on", "severity": 2},
+        {"match": {"domain": "update"}, "kind": "update_available", "severity": 1}
+      ]
+    }
+  },
+  "devices": [
+    {
+      "manufacturer": "AVM",
+      "model": "FRITZ!Box*",
+      "description": "FRITZ!Box: connectivity indicators.",
+      "rules": [
+        {
+          "match": {"domain": "binary_sensor", "device_class": "connectivity"},
+          "kind": "custom",
+          "severity": 2,
+          "config": {"operator": "eq", "value": "off"}
+        }
+      ]
+    }
+  ]
+}
