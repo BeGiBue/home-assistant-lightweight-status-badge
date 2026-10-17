@@ -1,0 +1,49 @@
+{
+  "title": "Lightweight Status Badge",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Lightweight Status Badge",
+        "description": "Set up the backend. Rule configuration UI and the dashboard badge are separate work packages."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Only one instance is supported."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "unread_count": {
+        "name": "Unacknowledged alerts"
+      },
+      "active_count": {
+        "name": "Active alerts"
+      },
+      "severity": {
+        "name": "Highest unacknowledged severity"
+      }
+    },
+    "binary_sensor": {
+      "has_unacknowledged_alerts": {
+        "name": "Unacknowledged alerts present"
+      }
+    }
+  },
+  "services": {
+    "acknowledge": {
+      "name": "Acknowledge alert",
+      "description": "Set or revoke the global acknowledgement for the current occurrence.",
+      "fields": {
+        "rule_id": {
+          "name": "Rule ID"
+        },
+        "occurrence": {
+          "name": "Occurrence"
+        },
+        "acknowledged": {
+          "name": "Acknowledged"
+        }
+      }
+    }
+  }
+}

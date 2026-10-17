@@ -1,0 +1,49 @@
+{
+  "title": "Lightweight Status Badge",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Lightweight Status Badge",
+        "description": "Backend einrichten. Regelkonfiguration und Dashboard-Badge folgen als separate Arbeitspakete."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Es ist nur eine Instanz möglich."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "unread_count": {
+        "name": "Unquittierte Meldungen"
+      },
+      "active_count": {
+        "name": "Aktive Meldungen"
+      },
+      "severity": {
+        "name": "Höchster unquittierter Schweregrad"
+      }
+    },
+    "binary_sensor": {
+      "has_unacknowledged_alerts": {
+        "name": "Unquittierte Meldungen vorhanden"
+      }
+    }
+  },
+  "services": {
+    "acknowledge": {
+      "name": "Meldung quittieren",
+      "description": "Globale Quittierung für die aktuelle Störung setzen oder zurücknehmen.",
+      "fields": {
+        "rule_id": {
+          "name": "Rule ID"
+        },
+        "occurrence": {
+          "name": "Occurrence"
+        },
+        "acknowledged": {
+          "name": "Acknowledged"
+        }
+      }
+    }
+  }
+}

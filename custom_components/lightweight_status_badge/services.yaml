@@ -1,0 +1,14 @@
+acknowledge:
+  fields:
+    rule_id:
+      required: true
+      selector:
+        text:
+    occurrence:
+      required: true
+      selector:
+        text:
+    acknowledged:
+      default: true
+      selector:
+        boolean:
