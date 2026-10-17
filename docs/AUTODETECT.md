@@ -120,6 +120,20 @@ including pathologically nested JSON that raises `RecursionError`, non-object, w
 version, too large) falls back to the bundled file, which is always consistent with the
 installed code. Origin is reported as `online`, `bundled` or `none`.
 
+### Bundled entries derived from a real installation
+
+The entries for `synology_dsm`, `unifi`, `unifi_network_plus`, `nut`, `rpi_power`,
+`smlight`, `hassio` and `raspberry_pi` were written from the owner's
+`core.entity_registry` (domain, device class, entity category, translation key and declared
+enum options only; no state values were available). `tests/test_autodetect.py`
+(`OWNER_CASES`) reproduces that metadata and also asserts which entities are *not* proposed.
+Known gaps, deliberately not guessed: TouchKio's error counter (`sensor`, diagnostic, no
+device class or translation key, so only its name identifies it; add it by hand as
+`positive_count`); SMLIGHT `ethernet` connectivity (off by design in Wi-Fi mode); GoodWe
+(no translation keys; its enum options containing "Fault" are found by the local heuristic).
+`disk_health` for Synology treats every state outside normal/healthy/good/passed as a fault,
+so a temporary state such as a running scrub can raise a notice; review the proposal.
+
 ### Changing the catalog
 
 1. Edit `custom_components/lightweight_status_badge/catalog.json`. Use only standard Home

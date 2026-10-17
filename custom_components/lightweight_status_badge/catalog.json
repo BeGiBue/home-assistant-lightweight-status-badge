@@ -5,51 +5,303 @@
     "zha": {
       "description": "Zigbee: low batteries, device problems and available updates.",
       "rules": [
-        {"match": {"domain": "binary_sensor", "device_class": "battery"}, "kind": "binary_on", "severity": 1},
-        {"match": {"domain": "binary_sensor", "device_class": "problem"}, "kind": "binary_on", "severity": 2},
-        {"match": {"domain": "update"}, "kind": "update_available", "severity": 1}
+        {
+          "match": {
+            "domain": "binary_sensor",
+            "device_class": "battery"
+          },
+          "kind": "binary_on",
+          "severity": 1
+        },
+        {
+          "match": {
+            "domain": "binary_sensor",
+            "device_class": "problem"
+          },
+          "kind": "binary_on",
+          "severity": 2
+        },
+        {
+          "match": {
+            "domain": "update"
+          },
+          "kind": "update_available",
+          "severity": 1
+        }
       ]
     },
     "zwave_js": {
       "description": "Z-Wave: problems, tamper, low batteries and available updates.",
       "rules": [
-        {"match": {"domain": "binary_sensor", "device_class": "problem"}, "kind": "binary_on", "severity": 2},
-        {"match": {"domain": "binary_sensor", "device_class": "tamper"}, "kind": "binary_on", "severity": 2},
-        {"match": {"domain": "binary_sensor", "device_class": "battery"}, "kind": "binary_on", "severity": 1},
-        {"match": {"domain": "update"}, "kind": "update_available", "severity": 1}
+        {
+          "match": {
+            "domain": "binary_sensor",
+            "device_class": "problem"
+          },
+          "kind": "binary_on",
+          "severity": 2
+        },
+        {
+          "match": {
+            "domain": "binary_sensor",
+            "device_class": "tamper"
+          },
+          "kind": "binary_on",
+          "severity": 2
+        },
+        {
+          "match": {
+            "domain": "binary_sensor",
+            "device_class": "battery"
+          },
+          "kind": "binary_on",
+          "severity": 1
+        },
+        {
+          "match": {
+            "domain": "update"
+          },
+          "kind": "update_available",
+          "severity": 1
+        }
       ]
     },
     "unifi": {
-      "description": "UniFi: connectivity of network devices and available updates.",
+      "description": "UniFi: device state, connectivity and available updates.",
       "rules": [
         {
-          "match": {"domain": "binary_sensor", "device_class": "connectivity", "entity_category": "diagnostic"},
+          "match": {
+            "domain": "sensor",
+            "translation_key": "device_state"
+          },
+          "kind": "diagnostic_state",
+          "severity": 2,
+          "config": {
+            "states": [
+              "disconnected",
+              "heartbeat_missed",
+              "inform_error",
+              "adoption_failed",
+              "isolated",
+              "firmware_mismatch"
+            ]
+          }
+        },
+        {
+          "match": {
+            "domain": "binary_sensor",
+            "device_class": "connectivity",
+            "entity_category": "diagnostic"
+          },
           "kind": "custom",
           "severity": 2,
-          "config": {"operator": "eq", "value": "off"}
+          "config": {
+            "operator": "eq",
+            "value": "off"
+          }
         },
-        {"match": {"domain": "update"}, "kind": "update_available", "severity": 1}
+        {
+          "match": {
+            "domain": "update"
+          },
+          "kind": "update_available",
+          "severity": 1
+        }
       ]
     },
     "synology_dsm": {
-      "description": "Synology DSM: problem indicators and available updates.",
+      "description": "Synology DSM: security status, drive and volume health, available updates.",
       "rules": [
-        {"match": {"domain": "binary_sensor", "device_class": "problem"}, "kind": "binary_on", "severity": 2},
-        {"match": {"domain": "update"}, "kind": "update_available", "severity": 1}
+        {
+          "match": {
+            "domain": "binary_sensor",
+            "device_class": "safety"
+          },
+          "kind": "binary_on",
+          "severity": 2
+        },
+        {
+          "match": {
+            "domain": "sensor",
+            "translation_key": "disk_status"
+          },
+          "kind": "disk_health",
+          "severity": 2
+        },
+        {
+          "match": {
+            "domain": "sensor",
+            "translation_key": "disk_smart_status"
+          },
+          "kind": "disk_health",
+          "severity": 2
+        },
+        {
+          "match": {
+            "domain": "sensor",
+            "translation_key": "volume_status"
+          },
+          "kind": "disk_health",
+          "severity": 2
+        },
+        {
+          "match": {
+            "domain": "update"
+          },
+          "kind": "update_available",
+          "severity": 1
+        }
       ]
     },
     "shelly": {
       "description": "Shelly: overheating and overload problems, available updates.",
       "rules": [
-        {"match": {"domain": "binary_sensor", "device_class": "problem"}, "kind": "binary_on", "severity": 2},
-        {"match": {"domain": "update"}, "kind": "update_available", "severity": 1}
+        {
+          "match": {
+            "domain": "binary_sensor",
+            "device_class": "problem"
+          },
+          "kind": "binary_on",
+          "severity": 2
+        },
+        {
+          "match": {
+            "domain": "update"
+          },
+          "kind": "update_available",
+          "severity": 1
+        }
       ]
     },
     "esphome": {
       "description": "ESPHome: problem indicators and available firmware updates.",
       "rules": [
-        {"match": {"domain": "binary_sensor", "device_class": "problem"}, "kind": "binary_on", "severity": 2},
-        {"match": {"domain": "update"}, "kind": "update_available", "severity": 1}
+        {
+          "match": {
+            "domain": "binary_sensor",
+            "device_class": "problem"
+          },
+          "kind": "binary_on",
+          "severity": 2
+        },
+        {
+          "match": {
+            "domain": "update"
+          },
+          "kind": "update_available",
+          "severity": 1
+        }
+      ]
+    },
+    "unifi_network_plus": {
+      "description": "UniFi Network Plus: connectivity, overheating and firmware updates.",
+      "rules": [
+        {
+          "match": {
+            "domain": "binary_sensor",
+            "device_class": "connectivity",
+            "entity_category": "diagnostic",
+            "translation_key": "realtime_connected"
+          },
+          "kind": "custom",
+          "severity": 2,
+          "config": {
+            "operator": "eq",
+            "value": "off"
+          }
+        },
+        {
+          "match": {
+            "domain": "binary_sensor",
+            "device_class": "problem"
+          },
+          "kind": "binary_on",
+          "severity": 2
+        },
+        {
+          "match": {
+            "domain": "update"
+          },
+          "kind": "update_available",
+          "severity": 1
+        }
+      ]
+    },
+    "nut": {
+      "description": "UPS via NUT: power and battery status.",
+      "rules": [
+        {
+          "match": {
+            "domain": "sensor",
+            "translation_key": "ups_status"
+          },
+          "kind": "ups_status",
+          "severity": 2,
+          "unknown_policy": "ignore"
+        }
+      ]
+    },
+    "rpi_power": {
+      "description": "Raspberry Pi power supply: under-voltage.",
+      "rules": [
+        {
+          "match": {
+            "domain": "binary_sensor",
+            "device_class": "problem"
+          },
+          "kind": "binary_on",
+          "severity": 2
+        }
+      ]
+    },
+    "smlight": {
+      "description": "SMLIGHT: internet connectivity and firmware updates.",
+      "rules": [
+        {
+          "match": {
+            "domain": "binary_sensor",
+            "device_class": "connectivity",
+            "entity_category": "diagnostic",
+            "translation_key": "internet"
+          },
+          "kind": "custom",
+          "severity": 2,
+          "config": {
+            "operator": "eq",
+            "value": "off"
+          }
+        },
+        {
+          "match": {
+            "domain": "update"
+          },
+          "kind": "update_available",
+          "severity": 1
+        }
+      ]
+    },
+    "hassio": {
+      "description": "Home Assistant OS and add-ons: available updates.",
+      "rules": [
+        {
+          "match": {
+            "domain": "update"
+          },
+          "kind": "update_available",
+          "severity": 1
+        }
+      ]
+    },
+    "raspberry_pi": {
+      "description": "Raspberry Pi: firmware updates.",
+      "rules": [
+        {
+          "match": {
+            "domain": "update"
+          },
+          "kind": "update_available",
+          "severity": 1
+        }
       ]
     }
   },
@@ -60,10 +312,16 @@
       "description": "FRITZ!Box: connectivity indicators.",
       "rules": [
         {
-          "match": {"domain": "binary_sensor", "device_class": "connectivity"},
+          "match": {
+            "domain": "binary_sensor",
+            "device_class": "connectivity"
+          },
           "kind": "custom",
           "severity": 2,
-          "config": {"operator": "eq", "value": "off"}
+          "config": {
+            "operator": "eq",
+            "value": "off"
+          }
         }
       ]
     }

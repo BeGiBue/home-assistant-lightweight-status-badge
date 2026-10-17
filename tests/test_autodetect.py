@@ -520,3 +520,84 @@ async def test_device_source_runs_the_same_automatic_stage(hass, zigbee):
     assert result["step_id"] == "autodetect_catalog"
     result = await go(hass, result, {"navigation": "back"})
     assert result["step_id"] == "device"
+
+
+# -- owner's installation (metadata taken from a real core.entity_registry) -------------------
+
+
+def _inventory(entity_registry, entry, device, domain, key, platform, **kwargs):
+    return entity_registry.async_get_or_create(
+        domain, platform, key, config_entry=entry, device_id=device.id, original_name=key, **kwargs
+    )
+
+
+DIAG = EntityCategory.DIAGNOSTIC
+OWNER_CASES = {
+    "synology_dsm": [
+        # (domain, key, device_class, category, translation_key, expected kind or None)
+        ("binary_sensor", "sec", "safety", None, "status", "binary_on"),
+        ("binary_sensor", "bad", "safety", DIAG, "disk_exceed_bad_sector_thr", "binary_on"),
+        ("sensor", "d1", None, DIAG, "disk_status", "disk_health"),
+        ("sensor", "d1s", None, DIAG, "disk_smart_status", "disk_health"),
+        ("sensor", "vol", None, None, "volume_status", "disk_health"),
+        ("update", "dsm", None, DIAG, "update", "update_available"),
+        ("sensor", "cpu", None, None, "cpu_total_load", None),
+        ("sensor", "temp", "temperature", DIAG, "disk_temp", None),
+    ],
+    "unifi": [
+        ("sensor", "state", "enum", DIAG, "device_state", "diagnostic_state"),
+        ("update", "fw", "firmware", None, None, "update_available"),
+        ("sensor", "rx", "data_rate", DIAG, "client_bandwidth_rx", None),
+        ("switch", "port", "switch", EntityCategory.CONFIG, None, None),
+    ],
+    "unifi_network_plus": [
+        ("binary_sensor", "rt", "connectivity", DIAG, "realtime_connected", "custom"),
+        ("binary_sensor", "hot", "problem", DIAG, "overheating", "binary_on"),
+        ("binary_sensor", "client", "connectivity", None, None, None),
+        ("update", "fw", None, DIAG, "firmware", "update_available"),
+    ],
+    "nut": [
+        ("sensor", "status", None, None, "ups_status", "ups_status"),
+        ("sensor", "display", None, None, "ups_status_display", None),
+        ("sensor", "load", None, None, "ups_load", None),
+    ],
+    "rpi_power": [("binary_sensor", "power", "problem", DIAG, "rpi_power", "binary_on")],
+    "smlight": [
+        ("binary_sensor", "net", "connectivity", DIAG, "internet", "custom"),
+        ("binary_sensor", "eth", "connectivity", DIAG, "ethernet", None),
+        ("update", "core", "firmware", EntityCategory.CONFIG, "core_update", "update_available"),
+        ("sensor", "mode", "enum", DIAG, "device_mode", None),
+    ],
+}
+
+
+@pytest.mark.parametrize("platform", OWNER_CASES)
+async def test_catalog_covers_the_owners_integrations(
+    hass, entity_registry, device_registry, platform
+):
+    entry = MockConfigEntry(domain=platform, title=platform)
+    entry.add_to_hass(hass)
+    device = device_registry.async_get_or_create(
+        config_entry_id=entry.entry_id, identifiers={(platform, "d")}, name="D"
+    )
+    expected = {}
+    for domain, key, dclass, category, tkey, kind in OWNER_CASES[platform]:
+        ent = _inventory(
+            entity_registry,
+            entry,
+            device,
+            domain,
+            key,
+            platform,
+            original_device_class=dclass,
+            entity_category=category,
+            translation_key=tkey,
+        )
+        hass.states.async_set(ent.entity_id, "off")
+        expected[ent.entity_id] = kind
+    detection = await async_detect(hass, "integration", entry.entry_id)
+    assert (detection.origin, detection.catalog_origin) == ("catalog", "bundled")
+    found = {p.entity_id: p.kind for p in detection.proposals}
+    assert found == {e: k for e, k in expected.items() if k}
+    for proposal in detection.proposals:
+        Rule.from_dict(proposal.to_rule())
