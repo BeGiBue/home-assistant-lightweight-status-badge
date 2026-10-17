@@ -10,6 +10,9 @@ Pi 4 measurements and a complete real-Lovelace browser acceptance run remain ope
 
 ## Installation / Einrichtung
 
+[![Open in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=BeGiBue&repository=home-assistant-lightweight-status-badge&category=integration)
+
+
 1. In HACS, open **Custom repositories**, add
    `https://github.com/BeGiBue/home-assistant-lightweight-status-badge`, category
    **Integration**, and download **Lightweight Status Badge**. Until this work is
