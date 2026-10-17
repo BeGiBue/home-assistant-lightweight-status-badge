@@ -1,0 +1,51 @@
+name: Release on tag
+# Publishes a GitHub release when a tag like v1.6.0 is pushed. Deliberately quiet:
+# - runs only for version tags, never for branches or pull requests;
+# - never ends in a failed run (a failed run triggers a notification e-mail to the person
+#   who pushed the tag); problems are reported as annotations and in the run summary;
+# - sends no e-mail itself. GitHub may still notify people who watch the repository for
+#   releases; that is a per-user setting and cannot be changed from a workflow.
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+permissions:
+  contents: write
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Create the release
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -u
+          version="${TAG#v}"
+          manifest="$(python3 -c "import json;print(json.load(open('custom_components/lightweight_status_badge/manifest.json'))['version'])")"
+          if [ "$manifest" != "$version" ]; then
+            echo "::error::Tag $TAG does not match manifest version $manifest. No release created."
+            echo "Tag $TAG does not match manifest version $manifest. No release created." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG already exists. Nothing to do." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          notes=".github/release-notes/$TAG.md"
+          if [ -f "$notes" ]; then
+            args=(--notes-file "$notes")
+          else
+            args=(--generate-notes)
+          fi
+          if gh release create "$TAG" --title "$version" --verify-tag "${args[@]}"; then
+            echo "Release $TAG created." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::error::Release $TAG could not be created."
+            echo "Release $TAG could not be created." >> "$GITHUB_STEP_SUMMARY"
+          fi
