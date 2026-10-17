@@ -1,11 +1,8 @@
-# Graphical rule management (issue #3 / work package B)
+# Graphical rule management
 
-> Historical work-package report. Current installation: [INSTALLATION.md](INSTALLATION.md); independent review and current evidence: [REVIEW.md](REVIEW.md), [REVIEW_TEST_RESULTS.md](REVIEW_TEST_RESULTS.md).
-
-Based on `feat/status-badge-backend` from PR #6, commit
-`e99d6952377e7634224a401766d18418115fadde`. Product requirements in SPEC.md and
-ARCHITECTURE.md are unchanged. This branch implements rule management, not the
-work-package-C dashboard badge/dialog or secondary acknowledged-alert view.
+Current installation: [INSTALLATION.md](INSTALLATION.md). The device/integration
+picker builds on the existing rule editor and reuses the backend evaluators;
+SPEC.md and ARCHITECTURE.md remain unchanged.
 
 ## Everyday operation / Bedienung
 
@@ -14,16 +11,30 @@ integration**. This is an integration, not a Helpers entry. Open **Configure**
 on the integration to manage rules. German and English labels follow the HA
 frontend language using HA's standard translations and selectors.
 
-1. **Add rule / Regel hinzufügen** opens HA's native entity picker. Search by
-   friendly name or entity ID. Registry UUID selections are resolved to entity
-   IDs; explicitly entered IDs also support temporarily missing sources.
+1. **Add rule / Regel hinzufügen** offers **Choose device / Gerät auswählen**,
+   **Choose integration / Integration auswählen**, or direct selection of a single
+   entity. Device/integration selection opens a native **checkbox list** of all
+   associated registered entities. There is no domain or diagnostic-category
+   filter: `vacuum.*`, `lawn_mower.*`, hidden and disabled entries are included.
+   Integration selection distinguishes individual config entries and includes
+   entities without a device. Disabled entries are not automatically enabled;
+   activate them separately in HA if they should provide live states. Nothing is
+   checked automatically. Registry UUIDs and manually entered entity IDs remain
+   supported by the optional single-entity path.
 2. Select and apply a template. Update entities suggest the update template;
    binary sensors with device class `problem` or `safety` suggest an explicit
-   fault indicator. All other entities suggest a custom rule. Nothing is enrolled
-   automatically. An update template requires an `update.*` entity; a generic
+   fault indicator. Vacuum/mower operating entities and sources declaring enum
+   options suggest **Select fault states / Fehlerzustände auswählen**. Other
+   entities suggest a custom rule. Nothing is enrolled automatically. An update template requires an `update.*` entity; a generic
    binary sensor's `on` state is not presumed to be a fault.
-3. Review the trigger. String sets have individual entries, not comma-split text.
-   Custom conditions have an operator, a text/numeric value and a set field:
+3. Review the trigger. Error-state sets, error strings and healthy-state allowlists
+   use native checkboxes. Suggestions combine declared entity/registry `options`,
+   standardized HA robot activities, and the current entity state. Only checked
+   error states trigger the rule; other ordinary states do not. For drive-health
+   rules the checked states instead form the healthy allowlist. Add states absent
+   from the list through **Additional values / Weitere Werte**; these are individual
+   entries, not comma-split text. Availability is handled separately by the
+   unknown/unavailable policies. Custom conditions have an operator, a text/numeric value and a set field:
    `in`/`not_in` use the set; other operators use the single value. Numbers must
    be finite. All string comparisons are case-insensitive.
 4. In **Title, messages and availability / Titel, Meldungen und Verfügbarkeit**,
@@ -40,9 +51,13 @@ frontend language using HA's standard translations and selectors.
    replaces trigger, severity, explanation and availability defaults in the draft;
    review them before saving. Title, recommendation and attribute list survive.
 6. **Save rule / Regel speichern** validates the complete rule list and persists
-   one complete change, returning to the overview without closing the manager.
-   Monitoring reloads immediately, without rebooting HA. **Done / Fertig** closes
-   the manager. Closing the dialog discards only the unsaved rule draft; earlier
+   one complete change. When multiple entities were checked, the next entity's
+   draft opens after each save; each source has its own rule and condition. Use
+   **Skip this entity / Diese Entität überspringen** to omit a pending source.
+   Cancelling discards the current draft and remaining unsaved selections, while
+   already saved rules remain saved. After the last source, return to the overview
+   without closing the manager. Monitoring reloads immediately, without rebooting
+   HA. **Done / Fertig** closes the manager. Closing the dialog discards only the unsaved rule draft; earlier
    explicitly saved rules remain saved.
 7. **Select existing rule / Vorhandene Regel auswählen** lists every rule by
    title, source ID and stable rule ID. The overview previews the first ten rules;
@@ -91,8 +106,12 @@ evaluators, GoodWe defaults, nine custom operators, add/reopen/edit/enable/disab
 remove, explicit back/cancel paths, invalid drafts, duplicate IDs, missing and
 unknown states, stable IDs, acknowledgement preservation/invalidation and
 translation-key parity. Existing backend authentication and acknowledgement tests
-remain part of the full suite. Final local validation: **167 tests passed** (51 new GUI tests), **96%** overall
-statement coverage and **98%** for `config_flow.py`, Python 3.14.8 on Linux x86_64.
+remain part of the full suite. Current local validation: **185 tests passed**, **97%**
+overall statement coverage, **99%** for `config_flow.py` and **100%** for
+`discovery.py`, Python 3.14.8 on Linux x86_64. This includes ten new picker/discovery
+tests for device/integration membership, operational/hidden/disabled sources,
+per-entity save/skip/cancel, metadata and custom states, native checkbox HTTP
+serialization, read-only permission denial and sources removed during selection.
 Ruff lint, Ruff formatting and `git diff --check` passed.
 Browser rendering on a physical HA installation and other HA versions remain
 unverified; HTTP serialization and flow behavior are automated, not a screenshot
@@ -100,3 +119,27 @@ or manual browser usability claim.
 
 Run the commands in [BACKEND.md](BACKEND.md) with the pinned test dependencies.
 Do not release or merge this branch as part of implementation.
+
+## Discovery limits
+
+Entity discovery runs only when the configuration pages are opened/submitted;
+it adds no polling, event history or full registry scan to the monitoring path.
+Membership is checked again on submission, so a source moved or removed during
+selection cannot silently become a different device's rule. Hidden/disabled
+entities are not excluded and their HA configuration is not modified.
+
+Home Assistant does not expose a complete state catalogue for every entity.
+`options` lists are used when supplied (including registry capabilities while a
+source is unavailable). Robot suggestions come from HA's `VacuumActivity` and
+`LawnMowerActivity` enums; these are standard domain states, not a promise that
+every device emits every listed state. For other entities only the current state
+may be known, or no values may be discoverable. Additional values always remain
+available; no unobserved error-code meanings are inferred. Fault selection still
+uses the existing `diagnostic_state` evaluator: this is a state rule, not automatic
+classification of arbitrary error attributes. Attribute-only faults require an
+appropriate source entity; this change does not add attribute evaluators.
+
+Before planning fundamental importer/configuration/storage changes, clarify
+backward compatibility with the user. Ask again before release only if that
+decision remains open or the scope has changed. The user confirmed that
+compatibility is not required for 0.1.5 (see AGENTS.md).

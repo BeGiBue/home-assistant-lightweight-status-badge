@@ -83,9 +83,10 @@
           "trigger": "Auslösebedingung",
           "details": "Titel, Meldungen und Verfügbarkeit",
           "save": "Regel speichern",
-          "cancel": "Entwurf verwerfen / zurück"
+          "cancel": "Entwurf verwerfen / zurück",
+          "skip": "Diese Entität überspringen"
         },
-        "description": "Entwurf: **{rule}** · {entity}. Übernimm Seiten mit „Übernehmen / weiter“. Erst „Regel speichern“ aktiviert die Änderungen."
+        "description": "Entwurf: **{rule}** · {entity}. Übernimm Seiten mit „Übernehmen / weiter“. Erst „Regel speichern“ aktiviert die Änderungen. Danach noch {remaining} Entitäten."
       },
       "remove": {
         "title": "Regel entfernen",
@@ -109,7 +110,7 @@
           "preset": "Vorlage",
           "navigation": "Navigation"
         },
-        "description": "Vorlagen ersetzen Auslöser, Schweregrad, Erklärung und Verfügbarkeit im Entwurf. Prüfe sie vor dem Speichern. Keine automatische Aufnahme von Entitäten."
+        "description": "Entität: **{entity}**. Danach noch {remaining} Entitäten. Vorlagen ersetzen Auslöser, Schweregrad, Erklärung und Verfügbarkeitsvorgaben des Entwurfs. Prüfe die Einstellungen vor dem Speichern."
       },
       "trigger": {
         "title": "Auslösebedingung",
@@ -117,13 +118,14 @@
           "allowlist": "Gesunde Zustände",
           "threshold": "Grenzwert (strikt größer als)",
           "error_strings": "Zusätzliche Fehlerzeichenfolgen",
-          "states": "Fehler- / Warnzustände",
+          "states": "Welche Zustände sind Fehler?",
           "operator": "Operator",
           "value": "Vergleichstext oder numerischer Grenzwert",
           "values": "Vergleichsmenge (für enthalten / nicht enthalten)",
-          "navigation": "Navigation"
+          "navigation": "Navigation",
+          "additional_states": "Weitere Werte (falls nicht aufgelistet)"
         },
-        "description": "Typ: {kind}. Mengen als einzelne Einträge hinzufügen. Bei eigenen Regeln gilt der Text-/Zahlenwert oder die Vergleichsmenge je nach Operator. USV: OB = Batteriebetrieb, LB = Batterie fast leer, FSD = erzwungenes Herunterfahren, RB = Batterie ersetzen; LB/FSD sind kritisch. Andere Token lösen keinen Fehler aus."
+        "description": "Typ: {kind}. Mengen als einzelne Einträge hinzufügen. Bei eigenen Regeln gilt der Text-/Zahlenwert oder die Vergleichsmenge je nach Operator. USV: OB = Batteriebetrieb, LB = Batterie fast leer, FSD = erzwungenes Herunterfahren, RB = Batterie ersetzen; LB/FSD sind kritisch. Andere Token lösen keinen Fehler aus. Entität: **{entity}**. Kreuze bei Fehlerzuständen die Werte an, die eine Meldung auslösen sollen; andere Werte lösen diese Regel nicht aus. Gesunde Zustände sind beim Laufwerkszustand dagegen die erlaubten Werte. Vorschläge stammen aus gemeldeten Optionen, bekannten HA-Betriebszuständen und dem aktuellen Zustand. Die Liste ist nicht immer vollständig; eigene Werte können ergänzt werden. unknown/unavailable werden separat unter Verfügbarkeit behandelt."
       },
       "details": {
         "title": "Titel, Meldungen und Verfügbarkeit",
@@ -145,6 +147,40 @@
         "data": {
           "navigation": "Navigation"
         }
+      },
+      "pick_source": {
+        "title": "Entitäten hinzufügen",
+        "description": "Wähle ein Gerät oder eine Integrationsinstanz und kreuze anschließend die gewünschten Entitäten an. Alternativ kannst du eine Entität direkt auswählen.",
+        "menu_options": {
+          "device": "Gerät auswählen",
+          "integration": "Integration auswählen",
+          "source": "Einzelne Entität / Entitäts-ID",
+          "back": "Zurück zur Übersicht"
+        }
+      },
+      "device": {
+        "title": "Gerät auswählen",
+        "data": {
+          "device_id": "Gerät",
+          "navigation": "Navigation"
+        },
+        "description": "Im nächsten Schritt werden alle zugehörigen Entitäten zur Auswahl angezeigt."
+      },
+      "integration": {
+        "title": "Integration auswählen",
+        "data": {
+          "entry_id": "Integrationsinstanz",
+          "navigation": "Navigation"
+        },
+        "description": "Bei mehreren Instanzen derselben Integration wähle den passenden Eintrag."
+      },
+      "entities": {
+        "title": "Entitäten ankreuzen",
+        "data": {
+          "entity_ids": "Zu überwachende Entitäten",
+          "navigation": "Navigation"
+        },
+        "description": "Alle zugehörigen Entitäten sind sichtbar, auch Betriebsentitäten von Saug- und Mährobotern sowie ausgeblendete und deaktivierte Entitäten. Deaktivierte Entitäten liefern erst nach ihrer Aktivierung in Home Assistant Zustände; hier werden sie nicht automatisch aktiviert. Konfiguriere und speichere anschließend für jede gewählte Entität eine eigene Regel. Abbrechen verwirft nur die noch nicht gespeicherten Regeln."
       }
     },
     "error": {
@@ -152,7 +188,13 @@
       "invalid_trigger": "Prüfe den Auslöser: endliche Zahl, passende Entität und nicht leere Zustandslisten erforderlich.",
       "invalid_rule": "Ungültige Regel. Prüfe Felder, Textlängen (max. 1000), Attributnamen (max. 10), eindeutige IDs und Regelanzahl (max. 1000).",
       "missing_rule": "Die Regel existiert nicht mehr.",
-      "rule_changed": "Die Regel wurde zwischenzeitlich geändert. Entwurf verwerfen und Regel neu öffnen."
+      "rule_changed": "Die Regel wurde zwischenzeitlich geändert. Entwurf verwerfen und Regel neu öffnen.",
+      "invalid_device": "Das Gerät ist nicht mehr verfügbar.",
+      "invalid_integration": "Die Integrationsinstanz ist nicht mehr verfügbar.",
+      "no_entities": "Keine registrierten Entitäten gefunden. Wähle eine andere Quelle oder gib die Entität direkt an.",
+      "select_entities": "Kreuze mindestens eine Entität an.",
+      "source_changed": "Die Auswahl hat sich geändert. Bitte wähle die Entitäten erneut aus.",
+      "too_many_rules": "Die Auswahl würde das Limit von 1000 Regeln überschreiten."
     }
   },
   "selector": {
@@ -171,7 +213,7 @@
         "unifi_state": "UniFi-Verbindungszustand",
         "ups_status": "USV-Status (OB / LB / FSD / RB)",
         "nonzero_code": "Fehlercode ungleich null",
-        "diagnostic_state": "Diagnose-Fehlerzustände",
+        "diagnostic_state": "Fehlerzustände auswählen",
         "grid_fault": "Netzfehler",
         "custom": "Eigene Bedingung",
         "goodwe_code": "GoodWe-Fehlercode (unbekannt / nicht verfügbar ignorieren)"
@@ -203,6 +245,22 @@
         "lt": "Kleiner als",
         "le": "Kleiner oder gleich",
         "contains": "Enthält (Groß-/Kleinschreibung ignorieren)"
+      }
+    },
+    "entity_state": {
+      "options": {
+        "on": "Ein (on)",
+        "off": "Aus (off)",
+        "error": "Fehler (error)",
+        "warning": "Warnung (warning)",
+        "fault": "Störung (fault)",
+        "failed": "Fehlgeschlagen (failed)",
+        "cleaning": "Reinigt (cleaning)",
+        "docked": "In der Ladestation (docked)",
+        "idle": "Inaktiv (idle)",
+        "paused": "Pausiert (paused)",
+        "returning": "Kehrt zurück (returning)",
+        "mowing": "Mäht (mowing)"
       }
     }
   }

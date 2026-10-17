@@ -27,13 +27,30 @@ async def menu(hass, result, step):
     return await go(hass, result, {"next_step_id": step})
 
 
-async def add(hass, result, preset, entity="sensor.source", config=None):
+async def manual(hass, result):
     result = await menu(hass, result, "add")
+    assert result["step_id"] == "pick_source"
+    return await menu(hass, result, "source")
+
+
+async def add(hass, result, preset, entity="sensor.source", config=None):
+    result = await manual(hass, result)
     assert result["step_id"] == "source"
     assert result["data_schema"].schema["entity_id"].selector_type == "entity"
     result = await go(hass, result, {"entity_id": entity})
     result = await go(hass, result, {"preset": preset})
-    result = await go(hass, result, config or {})
+    trigger = dict(
+        config
+        if config is not None
+        else ({"states": ["error", "warning"]} if preset == "diagnostic_state" else {})
+    )
+    # Check advertised values; enter non-advertised test values in the manual-values field.
+    for name in ("states", "allowlist", "error_strings"):
+        if name in trigger:
+            choices = result["data_schema"].schema[name].config["options"]
+            trigger["additional_states"] = [v for v in trigger[name] if v not in choices]
+            trigger[name] = [v for v in trigger[name] if v in choices]
+    result = await go(hass, result, trigger)
     assert result["step_id"] == "edit"
     return result
 
@@ -142,7 +159,7 @@ async def test_draft_navigation_and_invalid_inputs(hass):
     entry, result = await start(hass)
     result = await menu(hass, result, "choose")
     assert result["step_id"] == "init"
-    result = await menu(hass, result, "add")
+    result = await manual(hass, result)
     with pytest.raises(InvalidData):
         await hass.config_entries.options.async_configure(result["flow_id"], {"entity_id": "bad"})
     result = await go(hass, result, {"entity_id": "00000000000000000000000000000000"})
@@ -187,7 +204,7 @@ async def test_draft_navigation_and_invalid_inputs(hass):
 async def test_conservative_suggestions(hass, entity, device_class, expected):
     hass.states.async_set(entity, "on", {"device_class": device_class})
     entry, result = await start(hass)
-    result = await menu(hass, result, "add")
+    result = await manual(hass, result)
     result = await go(hass, result, {"entity_id": entity})
     assert result["data_schema"]({})["preset"] == expected
     assert not entry.options["rules"] if "rules" in entry.options else True
@@ -211,11 +228,13 @@ def test_translation_parity():
 
 async def test_initial_back_and_registry_uuid(hass, entity_registry):
     entry, result = await start(hass)
-    result = await menu(hass, result, "add")
+    result = await manual(hass, result)
     result = await go(hass, result, {"navigation": "back"})
+    assert result["step_id"] == "pick_source"
+    result = await menu(hass, result, "back")
     assert result["step_id"] == "init"
     registered = entity_registry.async_get_or_create("sensor", "test", "source")
-    result = await menu(hass, result, "add")
+    result = await manual(hass, result)
     result = await go(hass, result, {"entity_id": registered.id})
     result = await go(hass, result, {"preset": "ups_status"})
     result = await go(hass, result, {})
@@ -243,6 +262,9 @@ async def test_options_http_permissions_and_serialized_entity_selector(
     url = "/api/config/config_entries/options/flow/" + result["flow_id"]
     response = await admin.post(url, json={"next_step_id": "add"})
     assert response.status == 200
+    result = await response.json()
+    assert result["step_id"] == "pick_source"
+    response = await admin.post(url, json={"next_step_id": "source"})
     result = await response.json()
     assert result["step_id"] == "source"
     entity = next(f for f in result["data_schema"] if f["name"] == "entity_id")
@@ -280,7 +302,7 @@ async def test_availability_ui(hass, policy, severity):
 
 async def test_invalid_update_template_and_save_back(hass):
     entry, result = await start(hass)
-    result = await menu(hass, result, "add")
+    result = await manual(hass, result)
     result = await go(hass, result, {"entity_id": "sensor.source"})
     result = await go(hass, result, {"preset": "update_available"})
     result = await go(hass, result, {})
@@ -354,7 +376,7 @@ async def test_gui_configured_templates_monitor_live_states(hass, preset, config
 )
 async def test_invalid_trigger_preserves_form_and_can_cancel(hass, preset, config):
     entry, result = await start(hass)
-    result = await menu(hass, result, "add")
+    result = await manual(hass, result)
     result = await go(hass, result, {"entity_id": "sensor.source"})
     result = await go(hass, result, {"preset": preset})
     result = await go(hass, result, config)
