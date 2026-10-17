@@ -89,8 +89,10 @@ GitHub auf Review-Commit `301e1f2`: [Backend-/Frontend-CI](https://github.com/Be
 Hassfest **erfolgreich**, HACS **fehlgeschlagen: 2/8 Checks** (`license`, `topics`).
 Erfolgreich: information, description, issues, archived, hacsjson,
 integration_manifest. Brands ist explizit ausgenommen und bleibt offen.
-Topics-Änderung per GitHub-App wurde mit HTTP 403 abgelehnt. Lizenzentscheidung
-bleibt beim Eigentümer. Das ist ein tatsächlicher HACS-Befund, kein behaupteter
+Topics-Änderung per GitHub-App wurde mit HTTP 403 abgelehnt. Nach diesem Lauf
+hat der Eigentümer AGPL-3.0 gewählt; `LICENSE` und die Kopie im Integration-Paket
+enthalten den vollständigen GNU-Text, die README legt `AGPL-3.0-only` fest.
+Dies ändert GitHubs Lizenzmetadaten erst nach Erkennung auf dem Standardbranch. Das ist ein tatsächlicher HACS-Befund, kein behaupteter
 Konformitätsnachweis. Spätere Commits lösen erneut CI aus; deren Status ist separat
 am PR zu prüfen.
 

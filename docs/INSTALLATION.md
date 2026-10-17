@@ -94,12 +94,14 @@ The official HACS Action currently fails `license` and `topics` (6/8 other check
 completed successfully, only the external brands check explicitly excluded).
 Set repository About → Topics to include `home-assistant`, `hacs` and suitable
 integration topics. The connected GitHub App cannot change these settings (403).
-Choose an OSI-approved license as copyright owner and have GitHub recognize it
-on the default branch through an approved change. No license was assigned here
-without the owner's decision. A license file only on a development branch does
+The owner selected GNU AGPL version 3 (`AGPL-3.0-only`). The complete license
+is included at repository root and in the integration directory. GitHub must
+still recognize it on the default branch through an approved change. A license file only on a development branch does
 not change GitHub's repository-wide license metadata. Do not bypass the checks
 or merge directly merely to turn them green.
 
 Deutsch: Die offizielle HACS-Prüfung ist noch nicht vollständig bestanden.
-Eigentümer muss Topics in About setzen und eine OSI-Lizenz festlegen. Änderung
-von Topics wurde mit HTTP 403 verweigert; die Lizenzentscheidung ist offen.
+Die Lizenzentscheidung ist abgeschlossen: AGPL-3.0-only, vollständiger Text
+im Repository und im HACS-Paket. Eigentümer muss noch Topics in About setzen;
+deren Änderung wurde mit HTTP 403 verweigert. GitHubs Lizenzerkennung auf dem
+Standardbranch bleibt bis zu einer freigegebenen Integration der Änderung offen.

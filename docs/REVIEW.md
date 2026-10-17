@@ -89,14 +89,18 @@ erteilt.** Kein Merge oder Release wurde durchgeführt.
    vollständig aufgelöste und wiederkehrende Fehler sind ohne Historie nicht
    unterscheidbar. Beides unveränderte, dokumentierte Systemgrenzen.
 7. Offizielle HACS-Action: 6/8 Prüfungen bestanden; `license` und `topics`
-   fehlgeschlagen. Es fehlen eine erkannte OSI-Lizenz und Repository-Topics.
+   fehlgeschlagen. Die Lizenz wurde inzwischen vom Eigentümer als
+   AGPL-3.0 festgelegt und als `AGPL-3.0-only` mit vollständigem Text ergänzt.
+   GitHubs Erkennung auf dem Standardbranch und Repository-Topics bleiben offen.
    Topics (`home-assistant`, `hacs`, `custom-integration`, `lovelace`) konnten
    über die Verbindung nicht gesetzt werden: GitHub HTTP 403,
    `Resource not accessible by integration`. Eigentümer muss diese unter
    Repository → About → Topics ergänzen. Keine Umgehung dieser Checks.
-8. Keine Repository-Lizenz vorhanden. Vor öffentlicher Weiterverteilung sollte der
-   Eigentümer die Lizenzierung festlegen; hier wurde keine Rechtsentscheidung
-   oder ungefragte Lizenzvergabe vorgenommen.
+
+Die vom Eigentümer gewählte AGPL-3.0-only steht in `LICENSE` sowie im
+Integration-Verzeichnis, damit der HACS-Download den Lizenztext enthält.
+Die Lizenzentscheidung ist damit abgeschlossen; Merge und Veröffentlichung
+sind weiterhin nicht Teil dieses Auftrags.
 
 Die Lizenzprüfung liest GitHubs Repository-Lizenzmetadaten, nicht nur den
 PR-Dateibaum. Selbst eine Lizenzdatei im Entwicklungsbranch benötigt später die

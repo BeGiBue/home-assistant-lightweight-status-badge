@@ -65,3 +65,12 @@ for rollback, removal, version boundaries and troubleshooting.
 
 Earlier package-specific reports describe their original commits. The review
 report supersedes installation instructions and readiness claims for this branch.
+
+## License / Lizenz
+
+This project is licensed under the **GNU Affero General Public License,
+version 3 only** (`AGPL-3.0-only`). See [LICENSE](LICENSE) for the full text.
+A copy is included in the integration directory so HACS installations retain it.
+
+Dieses Projekt steht unter der **GNU Affero General Public License, Version 3**
+(`AGPL-3.0-only`); der vollständige Lizenztext steht in [LICENSE](LICENSE).
