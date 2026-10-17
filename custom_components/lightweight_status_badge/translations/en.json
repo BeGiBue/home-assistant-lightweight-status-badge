@@ -151,7 +151,8 @@
       "invalid_entity": "Invalid entity ID.",
       "invalid_trigger": "Check the trigger: use a finite number, suitable entity and nonempty state lists.",
       "invalid_rule": "Invalid rule. Check fields, text lengths (max 1000), attribute names (max 10), unique IDs and rule count (max 1000).",
-      "missing_rule": "This rule no longer exists."
+      "missing_rule": "This rule no longer exists.",
+      "rule_changed": "The rule changed while editing. Discard this draft and reopen the rule."
     }
   },
   "selector": {

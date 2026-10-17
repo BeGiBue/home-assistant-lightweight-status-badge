@@ -1,5 +1,7 @@
 # Dashboard badge and active-alert dialog (issue #4 / work package C)
 
+> Historical work-package report. Current installation: [INSTALLATION.md](INSTALLATION.md); independent review and current evidence: [REVIEW.md](REVIEW.md), [REVIEW_TEST_RESULTS.md](REVIEW_TEST_RESULTS.md).
+
 Based on PR #7, `feat/status-badge-rule-management`, commit
 `7fc0a199f3dfeb34d589dde69d27295d96c06672`. SPEC.md and ARCHITECTURE.md are
 unchanged. This is development work, not a release or completion of work package D.

@@ -186,6 +186,7 @@ test("dialog safely renders text, descriptions, technical data; keyboard Escape 
   );
   assert.equal(await p.evaluate(() => window.xss), 0);
   await p.keyboard.press("Escape");
+  await p.locator(`${portal} dialog`).waitFor({ state: "detached" });
   assert.equal(await p.locator(`${portal} dialog`).count(), 0);
   assert.equal(
     await p

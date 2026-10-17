@@ -10,6 +10,7 @@ from homeassistant.exceptions import ConfigEntryError, ConfigEntryNotReady
 from .api import async_register
 from .const import DOMAIN, PLATFORMS
 from .coordinator import Coordinator
+from .frontend import async_register_resource
 from .storage import AcknowledgementStore
 
 type StatusBadgeConfigEntry = ConfigEntry[Coordinator]
@@ -39,6 +40,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: StatusBadgeConfigEntry) 
             )
             async_register(hass)
             hass.data[DOMAIN] = True
+        await async_register_resource(hass)
         entry.async_on_unload(entry.add_update_listener(async_options_updated))
         await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     except Exception:

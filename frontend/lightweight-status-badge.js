@@ -164,6 +164,8 @@ export class AlertStore {
     this.connection.removeEventListener("disconnected", this.onDisconnected);
     this.connection.removeEventListener("ready", this.onReady);
     this.alerts = [];
+    this.pending.clear();
+    this.actionError = "";
     this.status = "loading";
   }
   retry() {
@@ -251,6 +253,7 @@ export class AlertStore {
       alert.can_acknowledge === false
     )
       return;
+    const generation = this.lifecycle;
     this.pending.add(alert.rule_id);
     this.actionError = "";
     this.emit();
@@ -262,6 +265,7 @@ export class AlertStore {
         acknowledged: !alert.acknowledged,
       });
     } catch (err) {
+      if (!this.active || generation !== this.lifecycle) return;
       this.actionError =
         err?.code === "unauthorized"
           ? "denied"
@@ -269,9 +273,11 @@ export class AlertStore {
             ? "stale"
             : "failed";
     } finally {
-      this.pending.delete(alert.rule_id);
-      this.emit();
-      await this.refresh();
+      if (this.active && generation === this.lifecycle) {
+        this.pending.delete(alert.rule_id);
+        this.emit();
+        await this.refresh();
+      }
     }
   }
 }
@@ -566,18 +572,20 @@ class StatusEditor extends HTMLElement {
       this.input.value = this.config?.name || "";
   }
 }
-customElements.define("lightweight-status-badge", StatusBadge);
-customElements.define("lightweight-status-alerts-card", StatusCard);
-customElements.define("lightweight-status-badge-editor", StatusEditor);
+for (const [name, component] of [
+  ["lightweight-status-badge", StatusBadge],
+  ["lightweight-status-alerts-card", StatusCard],
+  ["lightweight-status-badge-editor", StatusEditor],
+]) if (!customElements.get?.(name)) customElements.define(name, component);
 window.customBadges = window.customBadges || [];
-window.customBadges.push({
+if (!window.customBadges.some((item) => item.type === "lightweight-status-badge")) window.customBadges.push({
   type: "lightweight-status-badge",
   name: "Lightweight Status Badge",
   description: "Live alerts / Aktive Meldungen",
   preview: true,
 });
 window.customCards = window.customCards || [];
-window.customCards.push({
+if (!window.customCards.some((item) => item.type === "lightweight-status-alerts-card")) window.customCards.push({
   type: "lightweight-status-alerts-card",
   name: "Lightweight Status Alerts",
   description:
