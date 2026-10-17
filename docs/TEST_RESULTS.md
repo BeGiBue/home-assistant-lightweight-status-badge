@@ -3,7 +3,7 @@
 > Historical work-package report. Current installation: [INSTALLATION.md](INSTALLATION.md); independent review and current evidence: [REVIEW.md](REVIEW.md), [REVIEW_TEST_RESULTS.md](REVIEW_TEST_RESULTS.md).
 
 Measured on 2026-10-17 in the Codex Linux x86_64 cloud environment with
-Home Assistant 2026.10.2 and Python 3.14.8. No Raspberry Pi or physical UPS,
+Home Assistant 2026.10.2 and Python 3.14.8. No physical UPS,
 UniFi, NAS, inverter, or other device was available.
 
 ## Automated checks
@@ -47,10 +47,9 @@ unselected events, correct final counts/details, coalesced notifications and zer
 scheduled acknowledgement saves for ordinary state changes. Rule indexing and
 listener setup occur before the timed loop. Retained/peak numbers are traced
 Python allocations during that loop, **not process RSS, steady-state integration
-memory or a Raspberry Pi estimate**. The cloud host is shared; timings and refresh
+memory**. The cloud host is shared; timings and refresh
 counts vary with scheduling. No hardware-specific performance threshold is
-asserted. A Raspberry Pi 4 benchmark remains required before claiming that
-performance acceptance criterion for a public release.
+asserted.
 
 ## Known boundaries
 

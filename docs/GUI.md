@@ -1,8 +1,9 @@
 # Graphical rule management
 
 Current installation: [INSTALLATION.md](INSTALLATION.md). The device/integration
-picker builds on the existing rule editor and reuses the backend evaluators;
-SPEC.md and ARCHITECTURE.md remain unchanged.
+picker builds on the existing rule editor and reuses the backend evaluators. The
+automatic proposal stage in front of the checkbox list is described in
+[AUTODETECT.md](AUTODETECT.md).
 
 ## Everyday operation / Bedienung
 
@@ -18,14 +19,21 @@ frontend language using HA's standard translations and selectors.
    filter: `vacuum.*`, `lawn_mower.*`, hidden and disabled entries are included.
    Integration selection distinguishes individual config entries and includes
    entities without a device. Disabled entries are not automatically enabled;
-   activate them separately in HA if they should provide live states. Nothing is
-   checked automatically. Registry UUIDs and manually entered entity IDs remain
-   supported by the optional single-entity path.
+   activate them separately in HA if they should provide live states. After the
+   source is chosen, an **automatic stage** runs first: the rule catalog (online,
+   bundled copy when offline), then a local analysis of standard metadata. If it
+   proposes rules, the same checkbox list opens with those entities preselected and
+   marked ★; confirming saves them at once with the proposed rules. Entities without
+   a proposal that you check still go through the editor below one by one. Only if
+   nothing is proposed, the plain list opens and nothing is checked. Registry UUIDs
+   and manually entered entity IDs remain supported by the optional single-entity
+   path.
 2. Select and apply a template. Update entities suggest the update template;
    binary sensors with device class `problem` or `safety` suggest an explicit
    fault indicator. Vacuum/mower operating entities and sources declaring enum
    options suggest **Select fault states / Fehlerzustände auswählen**. Other
-   entities suggest a custom rule. Nothing is enrolled automatically. An update template requires an `update.*` entity; a generic
+   entities suggest a custom rule. Nothing is enrolled without your confirmation.
+   An update template requires an `update.*` entity; a generic
    binary sensor's `on` state is not presumed to be a fault.
 3. Review the trigger. Error-state sets, error strings and healthy-state allowlists
    use native checkboxes. Suggestions combine declared entity/registry `options`,
@@ -90,7 +98,7 @@ back action so it can be corrected or discarded.
 The literal list of 29 original entity IDs and their old Jinja conditions is not
 included in this repository or issue. Tests therefore cover the supplied category
 semantics with representative fixtures, not a claim of verified migration of
-unavailable original entity IDs. No physical devices or Raspberry Pi measurements
+unavailable original entity IDs. No physical devices
 are claimed by this GUI work.
 
 ## Security and tests

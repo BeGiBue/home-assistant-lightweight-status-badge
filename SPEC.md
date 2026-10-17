@@ -84,5 +84,8 @@ Existing monitored categories: Synology security, DSM updates, drive health/SMAR
 - Basic automated tests cover evaluator and acknowledgement state transitions.
 - HACS validation/docs and installation instructions before any public release.
 
+## Automatic rule proposals (added after the first version)
+When a user picks a device or integration, the configuration UI first proposes ready-made rules: a rule catalog (online, bundled copy when offline), then a local analysis of standard Home Assistant metadata, and only if both find nothing the manual checkbox list. Proposed entities are preselected; nothing is saved without confirmation; every saved rule is an ordinary, editable rule. The catalog is untrusted input and is validated; the lookup runs only inside the options flow, never during monitoring. Owner intent (2026-10-17): the integration should itself work out which entities indicate which faults, preselect them and propose matching rules, so that manual work is the exception. Details and invariants: docs/AUTODETECT.md.
+
 ## Explicit exclusions (first version)
-No push notifications, automatic issue discovery, historical timeline, charting, automatic repairs or device control.
+No push notifications, autonomous issue discovery during monitoring (rule *proposals* in the configuration UI are allowed, see above), historical timeline, charting, automatic repairs or device control.

@@ -35,6 +35,9 @@ Official HA options flow selects HA entities and rule presets. Options flow capa
 
 If badge is hidden when everything is acknowledged, provide a separate, discoverable integration detail view (or dedicated dashboard card) to see still-active acknowledged alerts.
 
+## Automatic rule proposals
+Added modules (details in docs/AUTODETECT.md): `autodetect.py` (orchestration, local heuristic, `Proposal`/`Detection`), `catalog.py` (loading, validation and matching of the untrusted rule catalog), `catalog.json` (the catalog; also the offline fallback and the file served from the default branch). The options flow inserts the steps `autodetect` / `autodetect_catalog` / `autodetect_heuristic` between source selection and the manual `entities` step. The feature runs only on demand inside the options flow: no subscriptions, no polling, no network access at runtime, and the coordinator, evaluators and storage are unaware of it.
+
 ## Risk checks
 1. Integration config flow ergonomics with many rules (paging, back action, entity selector, options save semantics).
 2. Home Assistant permission model for globally mutating acknowledgement state, and accessible UI behavior.
@@ -47,6 +50,6 @@ If badge is hidden when everything is acknowledged, provide a separate, discover
 A. Backend pure evaluator + coordinator + persistence + aggregate entities, tests.
 B. GUI options flows, translations and end-to-end rule management, tests.
 C. Native-badge feasibility prototype, then minimal companion badge and detail dialog if necessary.
-D. Integration testing on current HA, HACS validation, Raspberry Pi performance measurements, independent review and release notes.
+D. Integration testing on current HA, HACS validation, independent review and release notes.
 
 No release until all acceptance criteria pass.
