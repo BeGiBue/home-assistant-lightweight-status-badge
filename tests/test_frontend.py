@@ -4,6 +4,8 @@ from pathlib import Path
 
 from tests.test_integration import setup_entry
 
+MODULE = Path("custom_components/lightweight_status_badge/www/lightweight-status-badge.js")
+
 
 async def test_frontend_module_served_and_survives_reload(hass, hass_client):
     entry = await setup_entry(hass, [])
@@ -12,9 +14,7 @@ async def test_frontend_module_served_and_survives_reload(hass, hass_client):
     response = await client.get(url)
     assert response.status == 200
     assert response.content_type in {"text/javascript", "application/javascript"}
-    source = await hass.async_add_executor_job(
-        Path("frontend/lightweight-status-badge.js").read_text
-    )
+    source = await hass.async_add_executor_job(MODULE.read_text)
     assert await response.text() == source
     assert "max-age=31536000" not in response.headers.get("Cache-Control", "")
     assert await hass.config_entries.async_reload(entry.entry_id)

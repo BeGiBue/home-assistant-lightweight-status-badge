@@ -58,7 +58,7 @@ Apply / continue.
 | `custom_components/lightweight_status_badge/discovery.py` | `declared_options()` (new, extracted from `state_choices`) and the existing `source_entities()`. |
 | `custom_components/lightweight_status_badge/config_flow.py` | Steps `autodetect`, `autodetect_catalog`, `autodetect_heuristic`; `_label()` helper. |
 | `custom_components/lightweight_status_badge/const.py` | `CATALOG_URL`, timeout, size limit, cache TTL. |
-| `strings.json`, `translations/{en,de}.json` | Texts of the two new steps (the three files must stay in sync). |
+| `translations/{en,de}.json` | Texts of the two new steps (both files must stay in sync). |
 | `tests/test_autodetect.py`, `tests/conftest.py` | Tests; the autouse fixture `offline_catalog` blocks network access. |
 
 ## Stage 1: catalog
@@ -194,7 +194,7 @@ Availability defaults: `unknown_policy = ignore` (common right after start-up),
 3. Never infer the meaning of vendor-specific states or codes; use declared options or an
    explicit catalog entry.
 4. All rules, wherever they come from, must pass `Rule.from_dict`.
-5. Keep `strings.json`, `translations/en.json` and `translations/de.json` in sync.
+5. Keep `translations/en.json` and `translations/de.json` in sync.
 6. Behaviour changes need tests in `tests/test_autodetect.py` and an update of this file.
 
 ## Tests

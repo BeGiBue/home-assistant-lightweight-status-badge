@@ -5,8 +5,7 @@
   "scripts": {
     "test": "node --test --test-isolation=none tests/frontend/*.test.js",
     "test:browser": "node --test --test-isolation=none tests/browser/*.test.js",
-    "build": "node scripts/build.mjs",
-    "check": "node scripts/build.mjs --check"
+    "check": "node --check custom_components/lightweight_status_badge/www/lightweight-status-badge.js"
   },
   "devDependencies": {
     "playwright": "1.62.1"

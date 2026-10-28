@@ -212,8 +212,7 @@ async def test_conservative_suggestions(hass, entity, device_class, expected):
 
 def test_translation_parity():
     root = Path("custom_components/lightweight_status_badge")
-    en = json.loads((root / "strings.json").read_text())
-    assert en == json.loads((root / "translations/en.json").read_text())
+    en = json.loads((root / "translations/en.json").read_text())
     de = json.loads((root / "translations/de.json").read_text())
 
     def paths(data, prefix=""):

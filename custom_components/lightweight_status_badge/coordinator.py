@@ -3,7 +3,7 @@
 from collections import defaultdict
 from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import datetime
 from hashlib import sha256
 from html import escape
 from typing import Any
@@ -30,7 +30,6 @@ class Alert:
     raw_state: str
     attributes: dict
     occurrence: str
-    started: str
     acknowledged: bool = False
 
 
@@ -154,7 +153,6 @@ class Coordinator:
                 raw,
                 attrs,
                 uuid4().hex,
-                datetime.now(UTC).isoformat(),
                 pending == identity,
             )
             changed = True
@@ -219,8 +217,6 @@ class Coordinator:
                         rule.recommendation, a.raw_state, a.attributes, rule.attributes
                     ),
                     "raw_state": escape(a.raw_state),
-                    "started": a.started,
-                    "message_ids": list(a.message_ids),
                 }
             )
         return {

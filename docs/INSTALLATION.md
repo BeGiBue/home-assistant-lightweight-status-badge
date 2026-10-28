@@ -6,10 +6,11 @@ This is a custom **integration**, not a separate HACS dashboard/plugin repositor
 HACS installs the single directory `custom_components/lightweight_status_badge`,
 including `www/lightweight-status-badge.js`, translations and manifest. No Node,
 frontend build, manual file copy or integration YAML is required on the HA host.
-The checked-in module is verified against source in CI. `hacs.json` supplies the
+The checked-in module is the only copy (no build step); CI checks its syntax. `hacs.json` supplies the
 name, minimum tested HA version and README rendering; the default integration
 layout needs no `content_in_root`, ZIP release or separate JavaScript download.
-No release is generated. The repository must expose this code on an installable
+GitHub releases (tag `vX.Y.Z`, notes from `CHANGELOG.md`) are created by
+`.github/workflows/release.yml` without assets. The repository must expose this code on an installable
 revision before users can follow the normal default-branch HACS path.
 
 Follow the four GUI steps in [README](../README.md). Rules are configured under

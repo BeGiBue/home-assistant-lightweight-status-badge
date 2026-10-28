@@ -11,7 +11,7 @@ classify need manual work. Nach Auswahl von Gerät oder Integration schlägt die
 Oberfläche fertige Regeln vor (Online-Katalog, dann lokale Analyse) und wählt sie vor;
 eine Bestätigung genügt. Details: [docs/AUTODETECT.md](docs/AUTODETECT.md).
 
-**Version 1.6.0.**
+**Version 0.1.7.**
 Requires Home Assistant **2026.10.2 or newer** (tested: 2026.10.2). A complete
 real-Lovelace browser acceptance run remains open.
 

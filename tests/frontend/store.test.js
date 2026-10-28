@@ -4,7 +4,7 @@ globalThis.HTMLElement = class {};
 globalThis.customElements = { define() {} };
 globalThis.window = {};
 const { AlertStore, summary, decodeText, language } =
-  await import("../../frontend/lightweight-status-badge.js");
+  await import("../../custom_components/lightweight_status_badge/www/lightweight-status-badge.js");
 const tick = () => new Promise((resolve) => setImmediate(resolve));
 const alert = (id, acknowledged = false, severity = 2) => ({
   rule_id: id,
@@ -325,8 +325,8 @@ test("reloading a versioned module does not redefine elements or duplicate picke
       defined.set(name, value);
     },
   };
-  await import("../../frontend/lightweight-status-badge.js?first-version");
-  await import("../../frontend/lightweight-status-badge.js?next-version");
+  await import("../../custom_components/lightweight_status_badge/www/lightweight-status-badge.js?first-version");
+  await import("../../custom_components/lightweight_status_badge/www/lightweight-status-badge.js?next-version");
   assert.equal(defined.size, 3);
   assert.equal(window.customBadges.length, 1);
   assert.equal(window.customCards.length, 1);

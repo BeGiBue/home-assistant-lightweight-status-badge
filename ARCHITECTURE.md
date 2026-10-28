@@ -12,11 +12,8 @@ custom_components/lightweight_status_badge/
   sensor.py                # aggregate sensors: unacknowledged count, active count, severity
   binary_sensor.py         # optional aggregate has_unacknowledged_alerts
   storage.py               # acknowledgement persistence and reconciliation
-  strings.json
   translations/de.json
   translations/en.json
-frontend/
-  lightweight-status-badge.js   # only if needed after native UX prototype
 tests/
   test_rules.py
   test_acknowledgements.py

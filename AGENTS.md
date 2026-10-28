@@ -26,5 +26,5 @@ Owner intent: the integration should itself determine which entities indicate wh
 faults, preselect them and propose matching rules; manual selection is the fallback.
 The user explicitly confirmed that backward compatibility is not required for this
 feature scope. `catalog.json` is both the offline fallback and the file clients fetch
-from `main`, so review catalog changes like code. Keep `strings.json`,
+from `main`, so review catalog changes like code. Keep
 `translations/en.json` and `translations/de.json` identical in structure.

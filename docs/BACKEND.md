@@ -104,7 +104,7 @@ increasing integer `id`, as required by HA.
   (`de`/`en`, default HA installation language with English fallback). Returns
   `revision`, `alerts`, permission-filtered `total`, `next_offset`. Records contain
   `rule_id`, `occurrence`, `entity_id`, `title`, `severity`, `acknowledged`,
-  `description`, `recommendation`, escaped `raw_state`, `started`, `message_ids`, and `can_acknowledge` (current control permission;
+  `description`, `recommendation`, escaped `raw_state` and `can_acknowledge` (current control permission;
   the mutation endpoint still rechecks authorization).
   Acknowledged active alerts are included. Cleared alerts are absent.
 - `lightweight_status_badge/subscribe`: returns normal HA subscription success,
@@ -143,7 +143,7 @@ to these aggregate entities through its own entity permissions.
 Only rule-ID → condition-fingerprint mappings for acknowledged active alerts are
 stored in `.storage/lightweight_status_badge.ENTRY_ID.acknowledgements`.
 No alert records, original state values, timestamps, event history or retention
-configuration are stored by this integration. `started` and occurrence IDs are
+configuration are stored by this integration. Occurrence IDs are
 live metadata only and reset on reload/restart.
 
 Condition fingerprints include entity, evaluator type/config, priority and
