@@ -65,17 +65,14 @@ module caches. A hard power loss may lose the last second of acknowledgement
 changes. Before updating, take a normal HA backup. See [installation details](docs/INSTALLATION.md)
 for rollback, removal, version boundaries and troubleshooting.
 
-## Development and evidence
+## Documentation
 
-- [Independent review, fixes, risks and release assessment](docs/REVIEW.md)
-- [Review validation results and exact test boundaries](docs/REVIEW_TEST_RESULTS.md)
 - [GUI rule workflows](docs/GUI.md), [backend/API](docs/BACKEND.md),
   [frontend architecture and original validation](docs/FRONTEND.md)
 - [Automatic rule proposals: catalog, local analysis, invariants for agents](docs/AUTODETECT.md)
 - [Product specification](SPEC.md), [architecture](ARCHITECTURE.md)
 
-Earlier package-specific reports describe their original commits. The review
-report supersedes installation instructions and readiness claims for this branch.
+Earlier package-specific reports describe their original commits.
 
 ## License / Lizenz
 

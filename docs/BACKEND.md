@@ -1,6 +1,6 @@
 # Backend development (work package A / issue #2)
 
-> Historical work-package report. Current installation: [INSTALLATION.md](INSTALLATION.md); independent review and current evidence: [REVIEW.md](REVIEW.md), [REVIEW_TEST_RESULTS.md](REVIEW_TEST_RESULTS.md).
+> Historical work-package report. Current installation: [INSTALLATION.md](INSTALLATION.md).
 
 The Python backend implements the rule engine, event subscriptions, active alerts,
 acknowledgements, storage, aggregate entities and authenticated detail/action API
@@ -182,7 +182,3 @@ errors; corrupt/unreadable acknowledgement structures fail setup/retry instead
 of being silently overwritten. Any first-version UI must keep still-active
 acknowledged details reachable even when a badge hides itself; backend API access
 alone is not the product's required secondary UI.
-
-## Performance results
-
-See [TEST_RESULTS.md](TEST_RESULTS.md) for measured results, methodology and limits.
