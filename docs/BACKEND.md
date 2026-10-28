@@ -1,6 +1,6 @@
 # Backend development (work package A / issue #2)
 
-> Historical work-package report. Current installation: [INSTALLATION.md](INSTALLATION.md); independent review and current evidence: [REVIEW.md](REVIEW.md), [REVIEW_TEST_RESULTS.md](REVIEW_TEST_RESULTS.md).
+> Historical work-package report. Current installation: [INSTALLATION.md](INSTALLATION.md).
 
 The Python backend implements the rule engine, event subscriptions, active alerts,
 acknowledgements, storage, aggregate entities and authenticated detail/action API
@@ -104,7 +104,7 @@ increasing integer `id`, as required by HA.
   (`de`/`en`, default HA installation language with English fallback). Returns
   `revision`, `alerts`, permission-filtered `total`, `next_offset`. Records contain
   `rule_id`, `occurrence`, `entity_id`, `title`, `severity`, `acknowledged`,
-  `description`, `recommendation`, escaped `raw_state`, `started`, `message_ids`, and `can_acknowledge` (current control permission;
+  `description`, `recommendation`, escaped `raw_state` and `can_acknowledge` (current control permission;
   the mutation endpoint still rechecks authorization).
   Acknowledged active alerts are included. Cleared alerts are absent.
 - `lightweight_status_badge/subscribe`: returns normal HA subscription success,
@@ -143,7 +143,7 @@ to these aggregate entities through its own entity permissions.
 Only rule-ID → condition-fingerprint mappings for acknowledged active alerts are
 stored in `.storage/lightweight_status_badge.ENTRY_ID.acknowledgements`.
 No alert records, original state values, timestamps, event history or retention
-configuration are stored by this integration. `started` and occurrence IDs are
+configuration are stored by this integration. Occurrence IDs are
 live metadata only and reset on reload/restart.
 
 Condition fingerprints include entity, evaluator type/config, priority and
@@ -182,7 +182,3 @@ errors; corrupt/unreadable acknowledgement structures fail setup/retry instead
 of being silently overwritten. Any first-version UI must keep still-active
 acknowledged details reachable even when a badge hides itself; backend API access
 alone is not the product's required secondary UI.
-
-## Performance results
-
-See [TEST_RESULTS.md](TEST_RESULTS.md) for measured results, methodology and limits.

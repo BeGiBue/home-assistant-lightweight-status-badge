@@ -1,0 +1,97 @@
+name: Release
+
+# Zwei Wege, ein Ablauf:
+# - Tag-Push (vX.Y.Z): prüft Version und Changelog und legt das GitHub-Release zum Tag an.
+# - Von Hand (Actions -> Release -> Run workflow, auf main, Eingabe version): prüft genauso,
+#   legt den Tag auf den aktuellen Stand von main und erstellt das Release.
+# Release-Text ist der Abschnitt "## <Version>" aus CHANGELOG.md.
+# Versionen mit Bindestrich (z. B. 0.2.0-beta.1) werden als Vorabversion veröffentlicht.
+# HACS lädt den Ordner custom_components/lightweight_status_badge direkt aus dem Repository
+# (hacs.json ohne zip_release/filename), deshalb hat das Release keinen Anhang.
+on:
+  push:
+    tags: ["v*.*.*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version ohne v, z. B. 0.1.7 oder 0.2.0-beta.1"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Prüfen und veröffentlichen
+    runs-on: ubuntu-latest
+    env:
+      MANIFEST: custom_components/lightweight_status_badge/manifest.json
+      MODULE: custom_components/lightweight_status_badge/www/lightweight-status-badge.js
+    steps:
+      - name: Nur von main aus (Handstart)
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          REF: ${{ github.ref }}
+        run: |
+          [ "$REF" = "refs/heads/main" ] || { echo "::error::Bitte den Workflow auf main starten (aktuell $REF)."; exit 1; }
+
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Version bestimmen
+        env:
+          EVENT: ${{ github.event_name }}
+          INPUT: ${{ inputs.version }}
+          REF_NAME: ${{ github.ref_name }}
+          SHA: ${{ github.sha }}
+        run: |
+          if [ "$EVENT" = "workflow_dispatch" ]; then VERSION="$INPUT"; else VERSION="${REF_NAME#v}"; fi
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$ ]]; then
+            echo "::error::Ungültige Version '$VERSION'. Erlaubt: 0.1.7 oder 0.2.0-beta.1 (ohne v)."
+            exit 1
+          fi
+          {
+            echo "VERSION=$VERSION"
+            echo "TAG=v$VERSION"
+            echo "SHA=$SHA"
+          } >> "$GITHUB_ENV"
+
+      - name: Release bereits vorhanden?
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG existiert bereits, nichts zu tun." | tee -a "$GITHUB_STEP_SUMMARY"
+            echo "SKIP=1" >> "$GITHUB_ENV"
+          elif [ "${{ github.event_name }}" = "workflow_dispatch" ] && git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
+            echo "::error::Der Tag $TAG existiert bereits ohne Release. Release zum vorhandenen Tag bitte per erneutem Tag-Push oder von Hand anlegen."
+            exit 1
+          fi
+
+      - name: Version, Modul und Changelog prüfen
+        if: env.SKIP != '1'
+        run: |
+          FAILED=0
+          MANIFEST_VERSION="$(jq -r .version "$MANIFEST")"
+          [ "$MANIFEST_VERSION" = "$VERSION" ] || { echo "::error::manifest.json hat $MANIFEST_VERSION, erwartet $VERSION"; FAILED=1; }
+          node --check "$MODULE" || { echo "::error::Syntaxfehler in $MODULE"; FAILED=1; }
+          awk -v v="$VERSION" '/^## / { if (found) exit; if ($2 == v) { found=1; next } } found { print }' CHANGELOG.md > "$RUNNER_TEMP/notes.md"
+          grep -q '[^[:space:]]' "$RUNNER_TEMP/notes.md" || { echo "::error::CHANGELOG.md hat keinen Abschnitt '## $VERSION' mit Inhalt"; FAILED=1; }
+          exit $FAILED
+
+      - name: GitHub-Release anlegen
+        if: env.SKIP != '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Beim Handstart legt gh den Tag auf $SHA (main-HEAD) an; beim Tag-Push existiert er schon.
+          ARGS=(--target "$SHA" --title "$TAG" --notes-file "$RUNNER_TEMP/notes.md")
+          if [[ "$VERSION" == *-* ]]; then ARGS+=(--prerelease --latest=false); else ARGS+=(--latest); fi
+          gh release create "$TAG" "${ARGS[@]}"
+          echo "Release $TAG veröffentlicht." >> "$GITHUB_STEP_SUMMARY"

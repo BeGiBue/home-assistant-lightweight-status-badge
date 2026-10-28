@@ -25,6 +25,8 @@ TYPES = frozenset(
 POLICIES = {"ignore": 0, "notice": 1, "warning": 2, "critical": 3}
 OPERATORS = frozenset({"eq", "ne", "in", "not_in", "gt", "ge", "lt", "le", "contains"})
 UPS = frozenset({"OB", "LB", "FSD", "RB"})
+# Default allowlist of healthy states for the disk_health evaluator.
+DISK_HEALTH_ALLOWLIST = ("normal", "healthy", "good", "passed")
 
 
 def number(value: Any) -> float | None:
@@ -150,7 +152,7 @@ class Rule:
         """Display-only changes preserve acknowledgement; trigger/policy changes do not."""
         config = dict(self.config)
         defaults = {
-            "disk_health": {"allowlist": ["normal", "healthy", "good", "passed"]},
+            "disk_health": {"allowlist": list(DISK_HEALTH_ALLOWLIST)},
             "positive_count": {"threshold": 0},
             "nonzero_code": {"error_strings": []},
         }
@@ -206,9 +208,7 @@ def evaluate(rule: Rule, state: str | None) -> Match | None:
     if key in {"binary_on", "update_available"}:
         matched = s == "on"
     elif key == "disk_health":
-        matched = s not in {
-            v.casefold() for v in c.get("allowlist", ["normal", "healthy", "good", "passed"])
-        }
+        matched = s not in {v.casefold() for v in c.get("allowlist", DISK_HEALTH_ALLOWLIST)}
     elif key == "positive_count":
         n = number(raw)
         matched = n is not None and n > float(c.get("threshold", 0))

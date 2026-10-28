@@ -1,6 +1,6 @@
 # Dashboard badge and active-alert dialog (issue #4 / work package C)
 
-> Historical work-package report. Current installation: [INSTALLATION.md](INSTALLATION.md); independent review and current evidence: [REVIEW.md](REVIEW.md), [REVIEW_TEST_RESULTS.md](REVIEW_TEST_RESULTS.md).
+> Historical work-package report. Current installation: [INSTALLATION.md](INSTALLATION.md).
 
 Based on PR #7, `feat/status-badge-rule-management`, commit
 `7fc0a199f3dfeb34d589dde69d27295d96c06672`. SPEC.md and ARCHITECTURE.md are
@@ -112,7 +112,6 @@ Frontend requires Node 24; Playwright is a development-only locked dependency.
 npm ci
 npm test
 npm run check
-npm run build
 npx playwright install --with-deps chromium
 npm run test:browser
 ruff check .
@@ -121,10 +120,10 @@ python -m pytest --timeout=30 --cov=custom_components.lightweight_status_badge -
 git diff --check
 ```
 
-`npm run build` checks module syntax and copies the dependency-free source into
-the integration's `www` directory. `npm run check` fails if that checked-in artifact
-is stale; no bundler is necessary. Both commands run in CI along with Python,
-store and browser tests. `CHROMIUM_PATH` optionally selects an installed browser.
+The module is edited directly in
+`custom_components/lightweight_status_badge/www/lightweight-status-badge.js`; there
+is no separate source copy and no build step. `npm run check` checks its syntax
+(`node --check`) and runs in CI along with Python, store and browser tests. `CHROMIUM_PATH` optionally selects an installed browser.
 
 ### Actual results, 2026-10-17
 

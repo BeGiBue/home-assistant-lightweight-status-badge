@@ -14,7 +14,7 @@ from .autodetect import Detection, async_detect
 from .const import DOMAIN, MAX_RULES
 from .coordinator import Coordinator
 from .discovery import source_entities, state_choices
-from .rules import OPERATORS, POLICIES, TYPES, Rule
+from .rules import DISK_HEALTH_ALLOWLIST, OPERATORS, POLICIES, TYPES, Rule
 
 PRESETS = sorted(TYPES) + ["goodwe_code"]
 
@@ -460,7 +460,7 @@ class RuleOptionsFlow(config_entries.OptionsFlow):
                 unavailable_policy="ignore" if preset == "goodwe_code" else "warning",
             )
             self.draft["config"] = {
-                "disk_health": {"allowlist": ["normal", "healthy", "good", "passed"]},
+                "disk_health": {"allowlist": list(DISK_HEALTH_ALLOWLIST)},
                 "positive_count": {"threshold": 0},
                 "diagnostic_state": {
                     "states": [
@@ -530,7 +530,7 @@ class RuleOptionsFlow(config_entries.OptionsFlow):
         multiple = selector.TextSelector(selector.TextSelectorConfig(multiple=True))
         text = selector.TextSelector()
         configs = {
-            "disk_health": ("allowlist", ["normal", "healthy", "good", "passed"], multiple),
+            "disk_health": ("allowlist", list(DISK_HEALTH_ALLOWLIST), multiple),
             "positive_count": ("threshold", "0", text),
             "nonzero_code": ("error_strings", [], multiple),
             "diagnostic_state": ("states", [], multiple),
