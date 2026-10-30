@@ -572,11 +572,45 @@ class StatusEditor extends HTMLElement {
       this.input.value = this.config?.name || "";
   }
 }
-for (const [name, component] of [
+// Registry-sicher registrieren. Lädt eine andere Karte oder ein Add-on den Polyfill
+// @webcomponents/scoped-custom-element-registry, ersetzt er window.customElements durch eine
+// neue, leere Registry; Home Assistant sucht Badges und Karten dort und meldet sonst
+// "Custom element doesn't exist". Das kann auch nach dem Laden dieses Moduls passieren.
+// Darum wird idempotent in der jeweils aktuellen Registry angemeldet: sofort, im Start alle
+// 500 ms, danach alle 10 s sowie bei load, location-changed und Sichtbarkeitswechsel.
+// Ein Durchlauf prüft nur drei Einträge (unter einer Mikrosekunde).
+(function keepRegistered(definitions) {
+  const ensure = () => {
+    for (const [name, component] of definitions) {
+      try {
+        if (!customElements.get?.(name)) customElements.define(name, component);
+      } catch {
+        // Name schon vergeben oder Klasse abgelehnt: ein anderer Lader war schneller.
+      }
+    }
+  };
+  ensure();
+  let rounds = 0;
+  const later = (delay) => {
+    const timer = setTimeout(() => {
+      ensure();
+      later(rounds++ < 40 ? 500 : 10000);
+    }, delay);
+    timer?.unref?.(); // hält in Node-Tests den Prozess nicht offen
+  };
+  later(500);
+  if (typeof window !== "undefined" && window.addEventListener) {
+    window.addEventListener("load", ensure, { once: true });
+    window.addEventListener("location-changed", ensure);
+  }
+  if (typeof document !== "undefined" && document.addEventListener) {
+    document.addEventListener("visibilitychange", ensure);
+  }
+})([
   ["lightweight-status-badge", StatusBadge],
   ["lightweight-status-alerts-card", StatusCard],
   ["lightweight-status-badge-editor", StatusEditor],
-]) if (!customElements.get?.(name)) customElements.define(name, component);
+]);
 window.customBadges = window.customBadges || [];
 if (!window.customBadges.some((item) => item.type === "lightweight-status-badge")) window.customBadges.push({
   type: "lightweight-status-badge",

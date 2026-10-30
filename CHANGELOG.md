@@ -3,6 +3,23 @@
 Release-Texte der GitHub-Releases. Der Abschnitt `## X.Y.Z` wird vom Workflow
 `.github/workflows/release.yml` als Release-Text verwendet.
 
+## 0.1.8
+
+Fix: Badge und Karte bleiben auffindbar, wenn eine andere Karte den Polyfill für Custom-Element-Registries lädt.
+
+- Lädt eine andere Karte oder ein Add-on den Polyfill `@webcomponents/scoped-custom-element-registry`,
+  ersetzt er `window.customElements` durch eine neue, leere Registry. Home Assistant sucht Badge und
+  Karte dort und meldet „Custom element doesn't exist“. Das kann auch lange nach dem Laden dieses
+  Moduls passieren. Das Modul meldet `lightweight-status-badge`, `lightweight-status-alerts-card` und
+  `lightweight-status-badge-editor` jetzt in der jeweils aktuellen Registry an: sofort, im Start alle
+  500 ms, danach alle 10 s sowie bei `load`, `location-changed` und Sichtbarkeitswechsel. Ein Durchlauf
+  prüft nur drei Einträge. Vorhandene Einträge bleiben unberührt.
+- Tests: Node-Tests mit simulierter Registry und Zeit sowie ein Browser-Test mit dem echten Polyfill in
+  Chromium (auch ein zweites, spätes Laden). Der Polyfill ist eine Entwicklungsabhängigkeit und wird nicht
+  ausgeliefert.
+
+Keine Änderungen an Regeln, Speicherformat oder Konfiguration.
+
 ## 0.1.7
 
 Aufräumen des Repositorys, keine Funktionsänderung.

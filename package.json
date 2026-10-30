@@ -8,6 +8,7 @@
     "check": "node --check custom_components/lightweight_status_badge/www/lightweight-status-badge.js"
   },
   "devDependencies": {
+    "@webcomponents/scoped-custom-element-registry": "0.0.10",
     "playwright": "1.62.1"
   }
 }
