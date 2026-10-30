@@ -15,5 +15,5 @@
   "iot_class": "local_push",
   "issue_tracker": "https://github.com/BeGiBue/home-assistant-lightweight-status-badge/issues",
   "requirements": [],
-  "version": "0.1.7"
+  "version": "0.1.8"
 }
